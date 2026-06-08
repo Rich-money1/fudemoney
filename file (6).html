@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDDIE LIN | Fude Wealth · 富得財富管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;600;700;900&family=Noto+Sans+TC:wght@100;300;400;500&family=Oswald:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:rgba(255,255,255,.06);
+  --g2:rgba(255,255,255,.03);
+  --border:rgba(255,255,255,.08);
+  --text-dim:rgba(255,255,255,.28);
+  --text-mid:rgba(255,255,255,.55);
+  --text-bright:rgba(255,255,255,.88);
+  --green:rgba(160,255,190,.85);
+  --green-dim:rgba(160,255,190,.35);
+  --red:rgba(255,140,140,.85);
+  --gold:rgba(255,220,120,.85);
+}
+html,body{width:100%;min-height:100vh;background:#050505;font-family:'Raleway',sans-serif;color:#fff;overflow-x:hidden}
+
+/* ══ NAV ══ */
+nav{
+  position:fixed;top:0;left:0;right:0;height:58px;z-index:300;
+  background:rgba(4,4,4,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+}
+.nav-logo{
+  font-weight:700;font-size:.68rem;letter-spacing:8px;
+  color:rgba(255,255,255,.45);text-transform:uppercase;white-space:nowrap;
+}
+.nav-links{display:flex;gap:0;align-items:center}
+.nav-link{
+  font-weight:300;font-size:.58rem;letter-spacing:3.5px;
+  color:rgba(255,255,255,.2);text-transform:uppercase;
+  padding:20px 16px;cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color .25s,border-color .25s;white-space:nowrap;
+}
+.nav-link:hover{color:rgba(255,255,255,.7)}
+.nav-link.active{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+
+/* ══ SECTIONS ══ */
+.section{display:none;min-height:100vh;padding-top:58px;padding-bottom:80px}
+.section.active{display:block}
+.sec-inner{max-width:1240px;margin:0 auto;padding:64px 52px}
+.sec-head{margin-bottom:48px}
+.eyebrow-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.eyebrow-line{width:22px;height:1px;background:rgba(255,255,255,.3)}
+.eyebrow-txt{font-weight:300;font-size:.58rem;letter-spacing:6px;color:rgba(255,255,255,.28);text-transform:uppercase}
+.sec-title{font-family:'Oswald',sans-serif;font-weight:300;font-size:2.2rem;letter-spacing:6px;color:#fff;text-transform:uppercase;margin-bottom:8px}
+.sec-sub{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.8rem;color:rgba(255,255,255,.3);letter-spacing:4px}
+.h-rule{height:1px;background:linear-gradient(to right,rgba(255,255,255,.1),transparent);margin-bottom:44px}
+
+/* ══ HERO ══ */
+#sec-home{background:#060606;position:relative;overflow:hidden}
+.hero-wrap{position:relative;width:100%;height:calc(100vh - 58px);display:flex}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:80px 80px;pointer-events:none}
+.bg-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 22% 52%,rgba(255,255,255,.022) 0%,transparent 70%);pointer-events:none}
+.bg-slash{position:absolute;top:-20%;height:160%;transform:rotate(-14deg)}
+.bg-slash.s1{left:52%;width:2px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.1) 50%,transparent)}
+.bg-slash.s2{left:58%;width:1px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.05) 50%,transparent)}
+.bg-tri-br{position:absolute;bottom:-60px;right:-60px;width:0;height:0;border-left:400px solid transparent;border-bottom:400px solid rgba(255,255,255,.02)}
+.wm{position:absolute;right:32px;top:50%;transform:translateY(-52%);font-family:'Oswald',sans-serif;font-weight:500;font-size:16rem;color:rgba(255,255,255,.018);line-height:1;letter-spacing:-8px;pointer-events:none;user-select:none}
+.bg-dots{position:absolute;right:52px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(8,14px);gap:9px;opacity:.08}
+.bg-dot{width:2px;height:2px;background:#fff;border-radius:50%}
+.hero-left{position:relative;z-index:10;width:54%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:60px 60px 60px 88px}
+.hero-right{position:relative;z-index:10;width:46%;height:100%;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:60px 88px 60px 32px}
+.h-eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:36px}
+.h-eyebrow-line{width:28px;height:1px;background:rgba(255,255,255,.28)}
+.h-eyebrow-text{font-weight:300;font-size:.64rem;letter-spacing:7px;color:rgba(255,255,255,.35);text-transform:uppercase}
+.name-prefix{font-weight:200;font-size:.9rem;letter-spacing:14px;color:rgba(255,255,255,.28);text-transform:uppercase;display:block;margin-bottom:4px}
+.name-main{font-weight:900;font-size:clamp(3rem,4.8vw,4.8rem);letter-spacing:14px;text-transform:uppercase;color:#fff;line-height:.9;display:block}
+.name-dim{color:rgba(255,255,255,.12)}
+.zh-name{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.92rem;letter-spacing:8px;color:rgba(255,255,255,.38);margin-top:14px;margin-bottom:32px}
+.h-divider{display:flex;align-items:center;gap:14px;margin-bottom:32px}
+.h-tri{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid rgba(255,255,255,.4)}
+.h-dline{flex:1;max-width:160px;height:1px;background:linear-gradient(to right,rgba(255,255,255,.25),transparent)}
+.stats-row{display:flex;margin-bottom:36px}
+.stat-item{padding:14px 20px;border-left:1px solid rgba(255,255,255,.07);cursor:pointer;transition:background .25s}
+.stat-item:first-child{padding-left:0;border-left:none}
+.stat-item:hover{background:rgba(255,255,255,.03)}
+.stat-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.8rem;color:#fff;line-height:1;letter-spacing:2px}
+.stat-v sup{font-size:.75rem;opacity:.4}
+.stat-l{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.6rem;color:rgba(255,255,255,.3);margin-top:5px;letter-spacing:2px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.tag{font-weight:300;font-size:.52rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.1);padding:6px 13px;cursor:pointer;transition:all .25s}
+.tag:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
+.cta-row{display:flex;gap:10px}
+.btn-p{font-weight:400;font-size:.6rem;letter-spacing:5px;text-transform:uppercase;padding:12px 28px;border:1px solid rgba(255,255,255,.4);color:#fff;cursor:pointer;background:transparent;transition:all .25s}
+.btn-p:hover{background:rgba(255,255,255,.07);border-color:#fff}
+.btn-s{font-weight:300;font-size:.6rem;letter-spacing:5px;text-transform:uppercase;padding:12px 28px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.36);cursor:pointer;background:transparent;transition:all .25s}
+.btn-s:hover{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.65)}
+.feat-cards{display:flex;flex-direction:column;gap:2px;width:100%;max-width:350px}
+.feat-card{border:1px solid rgba(255,255,255,.07);padding:16px 20px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.01);position:relative;overflow:hidden;cursor:pointer;transition:background .25s,border-color .25s}
+.feat-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:rgba(255,255,255,.25);transition:height .3s}
+.feat-card:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.13)}
+.feat-card:hover::before{height:100%}
+.fc-n{font-family:'Oswald',sans-serif;font-weight:200;font-size:.9rem;color:rgba(255,255,255,.12);min-width:26px}
+.fc-lbl{font-weight:300;font-size:.5rem;letter-spacing:4px;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:2px}
+.fc-tit{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.8rem;color:rgba(255,255,255,.75);letter-spacing:2px}
+.fc-v{margin-left:auto;font-family:'Oswald',sans-serif;font-weight:300;font-size:1.15rem;color:rgba(255,255,255,.5);padding-left:10px;white-space:nowrap}
+.hero-quote{position:absolute;bottom:60px;right:88px;text-align:right;font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.68rem;color:rgba(255,255,255,.15);letter-spacing:3px;line-height:2.4}
+
+/* ══ SHARED CALC ══ */
+.calc-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:32px}
+.panel{border:1px solid rgba(255,255,255,.07);padding:32px;background:rgba(255,255,255,.01)}
+.panel-title{font-weight:300;font-size:.58rem;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.field{margin-bottom:20px}
+.f-label{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.66rem;color:rgba(255,255,255,.36);letter-spacing:3px;margin-bottom:7px;display:block}
+.f-row{display:flex;align-items:center}
+.f-pfx{font-family:'Oswald',sans-serif;font-weight:200;font-size:.82rem;color:rgba(255,255,255,.26);padding:0 12px;border:1px solid rgba(255,255,255,.07);border-right:none;height:40px;display:flex;align-items:center;background:rgba(255,255,255,.02);white-space:nowrap}
+input[type=number]{font-family:'Oswald',sans-serif;font-weight:300;font-size:1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:#fff;padding:8px 13px;height:40px;outline:none;transition:border-color .25s;width:100%;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]:focus{border-color:rgba(255,255,255,.22)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:rgba(255,255,255,.1);outline:none;margin-top:10px;width:100%}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer}
+.range-meta{display:flex;justify-content:space-between;margin-top:6px}
+.range-meta span{font-weight:200;font-size:.5rem;letter-spacing:3px;color:rgba(255,255,255,.2)}
+.qbtns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.qbtn{font-weight:300;font-size:.5rem;letter-spacing:3px;border:1px solid rgba(255,255,255,.1);padding:5px 12px;color:rgba(255,255,255,.26);cursor:pointer;background:transparent;transition:all .2s}
+.qbtn:hover,.qbtn.on{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.78);background:rgba(255,255,255,.04)}
+.tbtns{display:flex;gap:5px;flex-wrap:wrap}
+.tbtn{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.64rem;letter-spacing:2px;border:1px solid rgba(255,255,255,.1);padding:7px 15px;color:rgba(255,255,255,.26);cursor:pointer;background:transparent;transition:all .2s}
+.tbtn:hover{border-color:rgba(255,255,255,.26);color:rgba(255,255,255,.65)}
+.tbtn.on{border-color:rgba(255,255,255,.42);color:#fff;background:rgba(255,255,255,.05)}
+.nav-btn-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.nav-btn{font-weight:300;font-size:.5rem;letter-spacing:4px;text-transform:uppercase;padding:9px 18px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);cursor:pointer;background:transparent;transition:all .25s}
+.nav-btn:hover{border-color:rgba(255,255,255,.35);color:rgba(255,255,255,.8);background:rgba(255,255,255,.04)}
+
+/* ══ RESULT BOXES ══ */
+.res-hero{border:1px solid rgba(255,255,255,.08);padding:26px 30px;background:rgba(255,255,255,.02);margin-bottom:2px}
+.res-hero-label{font-weight:300;font-size:.55rem;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.26);margin-bottom:14px}
+.res-big{font-family:'Oswald',sans-serif;font-weight:300;font-size:3rem;color:#fff;line-height:1;letter-spacing:2px}
+.res-big .u{font-size:1rem;opacity:.35;margin-left:5px}
+.res-note{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.65rem;color:rgba(255,255,255,.26);letter-spacing:3px;margin-top:9px}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px}
+.res-cell{border:1px solid rgba(255,255,255,.06);padding:16px 18px;background:rgba(255,255,255,.01)}
+.rc-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.26);letter-spacing:3px;margin-bottom:6px}
+.rc-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.28rem;color:rgba(255,255,255,.75);letter-spacing:1px}
+.rc-v.pos{color:var(--green)}
+.rc-v.neg{color:var(--red)}
+.rc-v.gold{color:var(--gold)}
+.rc-n{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(255,255,255,.2);letter-spacing:2px;margin-top:3px}
+
+/* ══ FUND TABS ══ */
+.fund-tabs{display:flex;gap:2px;margin-bottom:2px;flex-wrap:wrap}
+.fund-tab{border:1px solid rgba(255,255,255,.07);padding:14px 18px;cursor:pointer;transition:all .25s;flex:1;min-width:180px;background:rgba(255,255,255,.01)}
+.fund-tab:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.13)}
+.fund-tab.on{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
+.ft-name{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.8rem;color:rgba(255,255,255,.72);letter-spacing:2px;margin-bottom:4px}
+.ft-rate{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.35rem;color:#fff}
+.ft-sub{font-weight:300;font-size:.5rem;letter-spacing:3px;color:rgba(255,255,255,.22);margin-top:2px}
+
+/* bars */
+.bar-wrap{margin-top:12px}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.bar-lbl{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.28);min-width:80px;letter-spacing:2px}
+.bar-track{flex:1;height:4px;background:rgba(255,255,255,.06)}
+.bar-fill{height:100%;background:rgba(255,255,255,.2);transition:width .7s cubic-bezier(.4,0,.2,1)}
+.bar-fill.green{background:rgba(160,255,190,.3)}
+.bar-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:.76rem;color:rgba(255,255,255,.5);min-width:88px;text-align:right}
+
+/* compound chart */
+.cmp-chart-box{margin-top:2px;border:1px solid rgba(255,255,255,.06);padding:24px;background:rgba(255,255,255,.01)}
+.cmp-chart-title{font-weight:300;font-size:.55rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:18px}
+.cmp-bars{display:flex;flex-direction:column;gap:10px}
+.cmp-row{display:grid;grid-template-columns:40px 1fr 100px;align-items:center;gap:12px}
+.cmp-yr{font-family:'Oswald',sans-serif;font-weight:200;font-size:.74rem;color:rgba(255,255,255,.26)}
+.cmp-track{height:7px;background:rgba(255,255,255,.05);position:relative}
+.cmp-fill{height:100%;background:rgba(255,255,255,.18);transition:width .8s cubic-bezier(.4,0,.2,1);position:relative}
+.cmp-fill::after{content:'';position:absolute;right:0;top:-3px;width:1px;height:13px;background:rgba(255,255,255,.38)}
+.cmp-amt{font-family:'Oswald',sans-serif;font-weight:300;font-size:.78rem;color:rgba(255,255,255,.55);text-align:right}
+.cmp-x{font-family:'Oswald',sans-serif;font-weight:200;font-size:.6rem;color:rgba(255,255,255,.28);margin-left:4px}
+
+/* ══ INSURERS ══ */
+#sec-loan{background:#070707}
+.ins-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px}
+.ins-card{border:1px solid rgba(255,255,255,.07);padding:14px;cursor:pointer;transition:all .25s;background:rgba(255,255,255,.01)}
+.ins-card:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.13)}
+.ins-card.on{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.22)}
+.ins-name{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.75rem;color:rgba(255,255,255,.7);letter-spacing:2px;margin-bottom:4px}
+.ins-rate-big{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.45rem;color:#fff;margin-bottom:2px}
+.ins-note{font-weight:200;font-size:.48rem;letter-spacing:3px;color:rgba(255,255,255,.2);text-transform:uppercase}
+.ins-upd{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.52rem;color:rgba(255,255,255,.16);margin-top:3px}
+.loan-res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.loan-cell{border:1px solid rgba(255,255,255,.06);padding:20px;background:rgba(255,255,255,.01)}
+.lc-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.26);letter-spacing:3px;margin-bottom:7px}
+.lc-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.7rem;color:#fff;letter-spacing:1px}
+.lc-u{font-size:.8rem;opacity:.35;margin-left:3px}
+.lc-n{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(255,255,255,.2);letter-spacing:2px;margin-top:5px}
+.spread-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding:14px 18px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01)}
+.sp-item{text-align:center;flex:1}
+.sp-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.3rem;color:#fff}
+.sp-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(255,255,255,.26);letter-spacing:2px;margin-top:3px}
+.sp-arrow{font-size:.9rem;color:rgba(255,255,255,.16)}
+.sp-net{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.9rem;color:var(--green)}
+.sp-net-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(160,255,190,.45);letter-spacing:2px;margin-top:3px}
+.sp-sep{width:1px;height:36px;background:rgba(255,255,255,.07)}
+.cmp-tbl{width:100%;border-collapse:collapse;margin-top:2px}
+.cmp-tbl th{font-weight:300;font-size:.48rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.18);padding:10px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+.cmp-tbl th:first-child{text-align:left}
+.cmp-tbl td{font-family:'Oswald',sans-serif;font-weight:300;font-size:.8rem;color:rgba(255,255,255,.55);padding:8px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer}
+.cmp-tbl td:first-child{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;color:rgba(255,255,255,.42);text-align:left;letter-spacing:2px}
+.cmp-tbl tr:hover td{background:rgba(255,255,255,.025)}
+.cmp-tbl tr.sel td{background:rgba(255,255,255,.04)}
+
+/* ══ PERFORMANCE ══ */
+#sec-perf{background:#070707}
+.perf-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:2px}
+.perf-kpi{border:1px solid rgba(255,255,255,.07);padding:22px;background:rgba(255,255,255,.02);text-align:center}
+.pk-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:2rem;color:#fff;letter-spacing:2px;margin-bottom:5px}
+.pk-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.28);letter-spacing:3px}
+.perf-wrap{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.01);overflow:hidden;margin-top:2px}
+.perf-hdr{padding:18px 26px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center}
+.perf-hdr-t{font-weight:300;font-size:.55rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.perf-badge{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(160,255,190,.45);letter-spacing:3px;border:1px solid rgba(160,255,190,.18);padding:5px 12px}
+.perf-table{width:100%;border-collapse:collapse}
+.perf-table th{font-weight:300;font-size:.5rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.18);padding:12px 24px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+.perf-table th:first-child{text-align:left}
+.perf-table td{font-family:'Oswald',sans-serif;font-weight:300;font-size:.84rem;color:rgba(255,255,255,.6);padding:15px 24px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);transition:background .2s}
+.perf-table td:first-child{font-family:'Noto Sans TC',sans-serif;font-size:.72rem;color:rgba(255,255,255,.42);text-align:left;letter-spacing:2px}
+.perf-table tr:hover td{background:rgba(255,255,255,.025)}
+.perf-table tr.hl td{background:rgba(255,255,255,.03)}
+.perf-table tr.hl td:first-child{color:rgba(255,255,255,.72)}
+.p-green{color:var(--green)!important}
+.p-gold{color:var(--gold)!important}
+.p-red{color:var(--red)!important}
+.case-badge{display:inline-block;font-weight:200;font-size:.42rem;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(255,255,255,.1);padding:2px 7px;color:rgba(255,255,255,.26);margin-right:7px;vertical-align:middle}
+.case-badge.g{border-color:rgba(160,255,190,.22);color:rgba(160,255,190,.5)}
+.case-badge.b{border-color:rgba(150,200,255,.22);color:rgba(150,200,255,.5)}
+.case-badge.y{border-color:rgba(255,220,120,.22);color:rgba(255,220,120,.5)}
+.p-inline-bar{display:inline-block;height:2px;background:rgba(160,255,190,.3);vertical-align:middle;margin-left:10px;border-radius:0}
+.perf-viz{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px}
+.perf-viz-box{border:1px solid rgba(255,255,255,.06);padding:24px;background:rgba(255,255,255,.01)}
+.pvb-title{font-weight:300;font-size:.52rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:18px}
+.perf-dis{padding:16px 24px;border-top:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.005)}
+.perf-dis-text{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.16);letter-spacing:2px;line-height:2.2}
+
+/* ══ 7Y REPORT ══ */
+#sec-report{background:#060606}
+.rpt-meta-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:14px}
+.rpt-meta{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.68rem;color:rgba(255,255,255,.26);letter-spacing:3px;line-height:2}
+.rpt-btn-row{display:flex;gap:8px}
+.rpt-btn{font-weight:300;font-size:.55rem;letter-spacing:5px;text-transform:uppercase;padding:11px 24px;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.55);cursor:pointer;background:transparent;transition:all .25s}
+.rpt-btn:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.05)}
+.rpt-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:2px}
+.rpt-kpi{border:1px solid rgba(255,255,255,.07);padding:22px;background:rgba(255,255,255,.02)}
+.rk-l{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.26);letter-spacing:3px;margin-bottom:9px}
+.rk-v{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.9rem;color:#fff;letter-spacing:2px;margin-bottom:3px}
+.rk-n{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(255,255,255,.18);letter-spacing:2px}
+.rpt-tl{border:1px solid rgba(255,255,255,.06);padding:26px;background:rgba(255,255,255,.01);margin-top:2px}
+.rpt-tl-title{font-weight:300;font-size:.57rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:22px}
+.rpt-table{width:100%;border-collapse:collapse}
+.rpt-table th{font-weight:300;font-size:.52rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:0 14px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+.rpt-table th:first-child{text-align:left}
+.rpt-table td{font-family:'Oswald',sans-serif;font-weight:300;font-size:.82rem;color:rgba(255,255,255,.6);padding:10px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04)}
+.rpt-table td:first-child{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;color:rgba(255,255,255,.36);text-align:left;letter-spacing:2px}
+.rpt-table tr:hover td{background:rgba(255,255,255,.02)}
+.rpt-table .tot td{color:rgba(255,255,255,.85);border-top:1px solid rgba(255,255,255,.1);border-bottom:none;font-size:.92rem}
+.rpt-dis{margin-top:22px;padding:14px 18px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.005)}
+.rpt-dis-text{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.18);letter-spacing:2px;line-height:2.2}
+
+/* ══ BOTTOM / VERT ══ */
+.btm-bar{position:fixed;bottom:0;left:0;right:0;height:44px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;padding:0 52px;z-index:100;background:rgba(4,4,4,.92);backdrop-filter:blur(12px)}
+.bb-l{display:flex;align-items:center;gap:16px}
+.bb-i{font-weight:200;font-size:.5rem;letter-spacing:4px;color:rgba(255,255,255,.14);text-transform:uppercase}
+.bb-sep{width:1px;height:10px;background:rgba(255,255,255,.06)}
+.bb-r{font-weight:200;font-size:.5rem;letter-spacing:4px;color:rgba(255,255,255,.1);text-transform:uppercase}
+.vert-txt{position:fixed;left:18px;top:50%;transform:translateY(-50%) rotate(-90deg);font-weight:200;font-size:.45rem;letter-spacing:6px;color:rgba(255,255,255,.08);text-transform:uppercase;white-space:nowrap;z-index:50}
+.tooltip{position:fixed;display:none;background:rgba(6,6,6,.96);border:1px solid rgba(255,255,255,.1);padding:8px 14px;font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.65rem;color:rgba(255,255,255,.65);letter-spacing:2px;pointer-events:none;z-index:999;white-space:nowrap}
+
+@media print{
+  nav,.btm-bar,.vert-txt,.tooltip{display:none!important}
+  .section{display:block!important;padding-top:0!important}
+  #sec-report,#sec-perf{page-break-before:always}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .5s ease forwards}
+.d1{animation-delay:.07s}.d2{animation-delay:.14s}.d3{animation-delay:.22s}.d4{animation-delay:.30s}
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tip"></div>
+<div class="vert-txt">Financial Advisory · Eddie Lin · 2025</div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-logo">Fude Wealth · 富得財富管理</div>
+  <div class="nav-links">
+    <div class="nav-link active" id="nl-0" onclick="goTo(0)">首頁</div>
+    <div class="nav-link" id="nl-1" onclick="goTo(1)">月配息防守層</div>
+    <div class="nav-link" id="nl-2" onclick="goTo(2)">複利雪球試算</div>
+    <div class="nav-link" id="nl-3" onclick="goTo(3)">保單貸款試算</div>
+    <div class="nav-link" id="nl-4" onclick="goTo(4)">實戰績效</div>
+    <div class="nav-link" id="nl-5" onclick="goTo(5)">七年財務報表</div>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="section active" id="sec-0">
+  <div class="hero-wrap">
+    <div class="bg-grid"></div><div class="bg-glow"></div>
+    <div class="bg-slash s1"></div><div class="bg-slash s2"></div>
+    <div class="bg-tri-br"></div>
+    <div class="bg-dots" id="dots"></div>
+    <div class="wm">90<br>10</div>
+    <div class="hero-left">
+      <div class="h-eyebrow fu"><div class="h-eyebrow-line"></div><div class="h-eyebrow-text">Asset Consultant Manager</div></div>
+      <div class="fu d1"><span class="name-prefix">Eddie</span><span class="name-main">LIN<span class="name-dim">.</span></span></div>
+      <div class="zh-name fu d2">林顧問 · 富得現金流資產配置</div>
+      <div class="h-divider fu d2"><div class="h-tri"></div><div class="h-dline"></div></div>
+      <div class="stats-row fu d3">
+        <div class="stat-item" onclick="goTo(1)" data-tip="月配息防守層試算">
+          <div class="stat-v">15<sup>%</sup></div><div class="stat-l">年化現金流綜效</div>
+        </div>
+        <div class="stat-item" onclick="goTo(3)" data-tip="保單貸款利差試算">
+          <div class="stat-v">11.5<sup>%</sup></div><div class="stat-l">最高淨利差</div>
+        </div>
+        <div class="stat-item" onclick="goTo(4)" data-tip="實戰案例績效">
+          <div class="stat-v">+57<sup>%</sup></div><div class="stat-l">最高案例增值幅度</div>
+        </div>
+        <div class="stat-item" onclick="goTo(5)" data-tip="七年財務報表">
+          <div class="stat-v">×2</div><div class="stat-l">七年本金翻倍</div>
+        </div>
+      </div>
+      <div class="tag-row fu d4">
+        <div class="tag" onclick="goTo(1)">月配息試算</div>
+        <div class="tag" onclick="goTo(2)">複利雪球試算</div>
+        <div class="tag" onclick="goTo(3)">保單貸款試算</div>
+        <div class="tag" onclick="goTo(4)">實戰績效</div>
+        <div class="tag" onclick="goTo(5)">七年財務報表</div>
+      </div>
+      <div class="cta-row fu d4">
+        <button class="btn-p" onclick="goTo(1)">立即試算月配息 →</button>
+        <button class="btn-s" onclick="goTo(5)">查看七年報表</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="feat-cards">
+        <div class="feat-card" onclick="goTo(1)" data-tip="輸入本金計算每月配息">
+          <div class="fc-n">01</div>
+          <div style="flex:1"><div class="fc-lbl">Defense Layer</div><div class="fc-tit">月配息防守層試算</div></div>
+          <div class="fc-v">90%</div>
+        </div>
+        <div class="feat-card" onclick="goTo(2)" data-tip="計算複利雪球本金累積">
+          <div class="fc-n">02</div>
+          <div style="flex:1"><div class="fc-lbl">Compound Growth</div><div class="fc-tit">複利雪球效益試算</div></div>
+          <div class="fc-v">10%</div>
+        </div>
+        <div class="feat-card" onclick="goTo(3)" data-tip="保單可貸金額與月息試算">
+          <div class="fc-n">03</div>
+          <div style="flex:1"><div class="fc-lbl">Policy Loan</div><div class="fc-tit">保單貸款利差試算</div></div>
+          <div class="fc-v">+11.5%</div>
+        </div>
+        <div class="feat-card" onclick="goTo(4)" data-tip="查看實戰案例績效數據">
+          <div class="fc-n">04</div>
+          <div style="flex:1"><div class="fc-lbl">Live Performance</div><div class="fc-tit">實戰案例績效總覽</div></div>
+          <div class="fc-v">+57%</div>
+        </div>
+        <div class="feat-card" onclick="goTo(5)" data-tip="整合所有數據的七年報表">
+          <div class="fc-n">05</div>
+          <div style="flex:1"><div class="fc-lbl">7-Year Plan</div><div class="fc-tit">七年完整財務報表</div></div>
+          <div class="fc-v">×1.95</div>
+        </div>
+      </div>
+      <div class="hero-quote">進可攻，退可守<br>讓資產為您工作</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 1: 月配息防守層 ══════════ -->
+<div class="section" id="sec-1">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <div class="eyebrow-row"><div class="eyebrow-line"></div><div class="eyebrow-txt">Monthly Dividend · Defense Layer</div></div>
+      <div class="sec-title">月配息防守層試算</div>
+      <div class="sec-sub">輸入本金與配置比例 · 即時計算各基金月配息金額</div>
+    </div>
+    <div class="h-rule"></div>
+    <!-- fund tabs -->
+    <div class="fund-tabs" id="fund-tabs">
+      <div class="fund-tab on" id="ft-both" onclick="setFund('both')">
+        <div class="ft-name">綜合配置（兩檔並用）</div>
+        <div class="ft-rate">15<span style="font-size:.85rem;opacity:.4">%</span></div>
+        <div class="ft-sub">年化綜效 · 9:1 策略</div>
+      </div>
+      <div class="fund-tab" id="ft-allianz" onclick="setFund('allianz')">
+        <div class="ft-name">安聯收益成長</div>
+        <div class="ft-rate">8<span style="font-size:.85rem;opacity:.4">%</span></div>
+        <div class="ft-sub">月配息年化</div>
+      </div>
+      <div class="fund-tab" id="ft-eastspring" onclick="setFund('eastspring')">
+        <div class="ft-name">瀚亞科技基金</div>
+        <div class="ft-rate">7<span style="font-size:.85rem;opacity:.4">%</span></div>
+        <div class="ft-sub">月配息年化</div>
+      </div>
+    </div>
+    <div class="calc-grid" style="margin-top:2px">
+      <!-- LEFT: inputs -->
+      <div class="panel">
+        <div class="panel-title">輸入本金與配置條件</div>
+        <div class="field">
+          <label class="f-label">本金（萬元 TWD）</label>
+          <div class="f-row"><div class="f-pfx">萬 TWD</div><input type="number" id="d-cap" value="300" min="10" max="99999" step="10" oninput="calcD()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setDCap(100)">100萬</button>
+            <button class="qbtn on" onclick="setDCap(300)">300萬</button>
+            <button class="qbtn" onclick="setDCap(600)">600萬</button>
+            <button class="qbtn" onclick="setDCap(1000)">1,000萬</button>
+            <button class="qbtn" onclick="setDCap(3000)">3,000萬</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="f-label">防守層配置比例 <span id="d-pct-v" style="color:#fff;font-family:'Oswald',sans-serif">90%</span></label>
+          <input type="range" id="d-pct" min="50" max="100" value="90" oninput="document.getElementById('d-pct-v').textContent=this.value+'%';calcD()">
+          <div class="range-meta"><span>50%</span><span>100%</span></div>
+        </div>
+        <div class="field">
+          <label class="f-label">安聯收益成長 配置比例 <span id="d-alloc-v" style="color:#fff;font-family:'Oswald',sans-serif">50%</span></label>
+          <input type="range" id="d-alloc" min="0" max="100" value="50" oninput="document.getElementById('d-alloc-v').textContent=this.value+'%';calcD()">
+          <div class="range-meta"><span>0% 全瀚亞</span><span>100% 全安聯</span></div>
+        </div>
+        <div class="field">
+          <label class="f-label">每月生活支出（元）</label>
+          <div class="f-row"><div class="f-pfx">NTD</div><input type="number" id="d-living" value="30000" min="0" max="500000" step="1000" oninput="calcD()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setDLv(20000)">2萬</button>
+            <button class="qbtn on" onclick="setDLv(30000)">3萬</button>
+            <button class="qbtn" onclick="setDLv(50000)">5萬</button>
+            <button class="qbtn" onclick="setDLv(80000)">8萬</button>
+          </div>
+        </div>
+        <div class="nav-btn-row">
+          <button class="nav-btn" onclick="syncToLoan();goTo(3)">帶入保單貸款試算 →</button>
+          <button class="nav-btn" onclick="syncToCompound();goTo(2)">帶入複利試算 →</button>
+          <button class="nav-btn" onclick="buildReport();goTo(5)">整合七年報表 →</button>
+        </div>
+      </div>
+      <!-- RIGHT: results -->
+      <div>
+        <div class="res-hero">
+          <div class="res-hero-label">每月配息收入（稅前）</div>
+          <div class="res-big" id="d-monthly">—<span class="u">元</span></div>
+          <div class="res-note" id="d-deploy">—</div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell"><div class="rc-l">安聯收益成長 月配息</div><div class="rc-v" id="d-a-mo">—</div><div class="rc-n">年化 8% · 月配</div></div>
+          <div class="res-cell"><div class="rc-l">瀚亞科技 月配息</div><div class="rc-v" id="d-e-mo">—</div><div class="rc-n">年化 7% · 月配</div></div>
+          <div class="res-cell"><div class="rc-l">月淨現金流</div><div class="rc-v pos" id="d-net">—</div><div class="rc-n">扣除生活支出後</div></div>
+          <div class="res-cell"><div class="rc-l">年化配息總額</div><div class="rc-v" id="d-annual">—</div><div class="rc-n">稅前估算</div></div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,.06);padding:20px;background:rgba(255,255,255,.01);margin-top:2px">
+          <div style="font-weight:300;font-size:.52rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:14px">月配息累積效益 · 12個月預覽</div>
+          <div class="bar-wrap" id="d-bars"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 2: 複利雪球 ══════════ -->
+<div class="section" id="sec-2">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <div class="eyebrow-row"><div class="eyebrow-line"></div><div class="eyebrow-txt">Compound Snowball · Offensive Layer</div></div>
+      <div class="sec-title">複利雪球試算</div>
+      <div class="sec-sub">進攻層本金累積效益計算 · 輸入條件即時試算</div>
+    </div>
+    <div class="h-rule"></div>
+    <div class="calc-grid">
+      <div class="panel">
+        <div class="panel-title">設定進攻層條件</div>
+        <div class="field">
+          <label class="f-label">本金（萬元 TWD）</label>
+          <div class="f-row"><div class="f-pfx">萬 TWD</div><input type="number" id="c-cap" value="300" min="10" max="99999" step="10" oninput="calcC()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setCCap(100)">100萬</button>
+            <button class="qbtn on" onclick="setCCap(300)">300萬</button>
+            <button class="qbtn" onclick="setCCap(600)">600萬</button>
+            <button class="qbtn" onclick="setCCap(1000)">1,000萬</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="f-label">進攻層比例（佔本金）<span id="c-pct-v" style="color:#fff;font-family:'Oswald',sans-serif;margin-left:8px">10%</span></label>
+          <input type="range" id="c-pct" min="5" max="50" value="10" oninput="document.getElementById('c-pct-v').textContent=this.value+'%';calcC()">
+          <div class="range-meta"><span>5%</span><span>50%</span></div>
+        </div>
+        <div class="field">
+          <label class="f-label">預估年化報酬率 <span id="c-rate-v" style="color:#fff;font-family:'Oswald',sans-serif;margin-left:8px">10%</span></label>
+          <input type="range" id="c-rate" min="5" max="30" value="10" oninput="document.getElementById('c-rate-v').textContent=this.value+'%';calcC()">
+          <div class="range-meta"><span>5%</span><span>30%</span></div>
+        </div>
+        <div class="field">
+          <label class="f-label">年度追加投入（萬元，可為 0）</label>
+          <div class="f-row"><div class="f-pfx">萬 TWD</div><input type="number" id="c-add" value="0" min="0" max="1000" step="5" oninput="calcC()"></div>
+        </div>
+        <div class="field">
+          <label class="f-label">試算年限</label>
+          <div class="tbtns" id="c-yr-btns">
+            <button class="tbtn" onclick="setCYr(5)">5年</button>
+            <button class="tbtn on" onclick="setCYr(7)">7年</button>
+            <button class="tbtn" onclick="setCYr(10)">10年</button>
+            <button class="tbtn" onclick="setCYr(15)">15年</button>
+            <button class="tbtn" onclick="setCYr(20)">20年</button>
+          </div>
+        </div>
+        <div class="nav-btn-row">
+          <button class="nav-btn" onclick="syncToCompound();calcC()">← 從防守層帶入本金</button>
+          <button class="nav-btn" onclick="buildReport();goTo(5)">整合七年報表 →</button>
+        </div>
+      </div>
+      <div>
+        <div class="res-hero">
+          <div class="res-hero-label">目標年末本金總值</div>
+          <div class="res-big" id="c-final">—<span class="u">萬</span></div>
+          <div class="res-note" id="c-note">—</div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell"><div class="rc-l">進攻層初始本金</div><div class="rc-v" id="c-init">—</div><div class="rc-n">萬元</div></div>
+          <div class="res-cell"><div class="rc-l">總增值金額</div><div class="rc-v pos" id="c-gain">—</div><div class="rc-n">萬元</div></div>
+          <div class="res-cell"><div class="rc-l">倍數</div><div class="rc-v gold" id="c-mult">—</div><div class="rc-n">相對初始本金</div></div>
+          <div class="res-cell"><div class="rc-l">年化報酬率</div><div class="rc-v" id="c-rate-show">—</div><div class="rc-n">複利計算</div></div>
+        </div>
+        <div class="cmp-chart-box">
+          <div class="cmp-chart-title">年度本金累積圖</div>
+          <div class="cmp-bars" id="c-chart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 3: 保單貸款 ══════════ -->
+<div class="section" id="sec-3">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <div class="eyebrow-row"><div class="eyebrow-line"></div><div class="eyebrow-txt">Policy Loan · Interest Spread Calculator</div></div>
+      <div class="sec-title">保單貸款試算</div>
+      <div class="sec-sub">選擇保險公司 · 計算可貸金額 · 月息試算 · 利差分析</div>
+    </div>
+    <div class="h-rule"></div>
+    <div style="font-weight:300;font-size:.52rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:12px">選擇保險公司（貸款利率每季更新）</div>
+    <div class="ins-grid" id="ins-grid"></div>
+    <div class="calc-grid">
+      <div class="panel">
+        <div class="panel-title">保單資訊輸入</div>
+        <div class="field">
+          <label class="f-label">保單總保額（萬元 TWD）</label>
+          <div class="f-row"><div class="f-pfx">萬 TWD</div><input type="number" id="l-policy" value="300" min="10" max="99999" step="10" oninput="calcL()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setLPol(100)">100萬</button>
+            <button class="qbtn on" onclick="setLPol(300)">300萬</button>
+            <button class="qbtn" onclick="setLPol(600)">600萬</button>
+            <button class="qbtn" onclick="setLPol(1000)">1,000萬</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="f-label">貸款成數（解約金比例）<span id="l-ratio-v" style="color:#fff;font-family:'Oswald',sans-serif;margin-left:8px">80%</span></label>
+          <input type="range" id="l-ratio" min="50" max="90" value="80" oninput="document.getElementById('l-ratio-v').textContent=this.value+'%';calcL()">
+          <div class="range-meta"><span>50%</span><span>90%</span></div>
+        </div>
+        <div class="field">
+          <label class="f-label">月配息收入（元）</label>
+          <div class="f-row"><div class="f-pfx">NTD</div><input type="number" id="l-income" value="33750" min="0" max="9999999" step="500" oninput="calcL()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="syncToLoan();calcL()" data-tip="從防守層試算帶入">← 防守層帶入</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="f-label">投資再部署預估年化報酬率 <span id="l-inv-v" style="color:#fff;font-family:'Oswald',sans-serif;margin-left:8px">15%</span></label>
+          <input type="range" id="l-inv" min="5" max="20" value="15" oninput="document.getElementById('l-inv-v').textContent=this.value+'%';calcL()">
+          <div class="range-meta"><span>5%</span><span>20%</span></div>
+        </div>
+        <div class="nav-btn-row">
+          <button class="nav-btn" onclick="buildReport();goTo(5)">整合七年報表 →</button>
+        </div>
+      </div>
+      <div>
+        <div class="loan-res-grid">
+          <div class="loan-cell"><div class="lc-l">可貸款金額</div><div class="lc-v" id="l-amt">—<span class="lc-u">萬</span></div><div class="lc-n" id="l-amt-n">—</div></div>
+          <div class="loan-cell"><div class="lc-l">月利息（只還息）</div><div class="lc-v" id="l-mint">—<span class="lc-u">元</span></div><div class="lc-n" id="l-mint-n">—</div></div>
+          <div class="loan-cell"><div class="lc-l">年利息支出</div><div class="lc-v" id="l-aint">—<span class="lc-u">元</span></div><div class="lc-n" id="l-aint-n">—</div></div>
+        </div>
+        <div class="spread-bar">
+          <div class="sp-item"><div class="sp-v" id="sp-inc">—</div><div class="sp-l">月配息收入</div></div>
+          <div class="sp-arrow">−</div>
+          <div class="sp-item"><div class="sp-v" id="sp-int">—</div><div class="sp-l">月利息</div></div>
+          <div class="sp-arrow">=</div>
+          <div class="sp-item"><div class="sp-net" id="sp-net">—</div><div class="sp-net-l">月淨餘額</div></div>
+          <div class="sp-sep"></div>
+          <div class="sp-item"><div class="sp-v" id="sp-spread">—</div><div class="sp-l">年化淨利差</div></div>
+        </div>
+        <!-- comparison table -->
+        <div style="border:1px solid rgba(255,255,255,.06);padding:20px;background:rgba(255,255,255,.01);margin-top:2px">
+          <div style="font-weight:300;font-size:.52rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:14px">各保險公司月息比較</div>
+          <table class="cmp-tbl" id="ins-cmp-tbl">
+            <thead><tr><th style="text-align:left">保險公司</th><th>貸款利率</th><th>可貸金額</th><th>月利息</th><th>月淨餘</th><th>年化淨利差</th></tr></thead>
+            <tbody id="ins-cmp-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 4: 實戰績效 ══════════ -->
+<div class="section" id="sec-4">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <div class="eyebrow-row"><div class="eyebrow-line"></div><div class="eyebrow-txt">Live Performance · Real Case Analysis</div></div>
+      <div class="sec-title">實戰成效總比對</div>
+      <div class="sec-sub">看見數據的硬實力 · 多元策略資產組合績效表</div>
+    </div>
+    <div class="h-rule"></div>
+    <!-- KPI summary -->
+    <div class="perf-kpi-row" id="perf-kpis"></div>
+    <!-- main table -->
+    <div class="perf-wrap">
+      <div class="perf-hdr">
+        <div class="perf-hdr-t">實戰案例績效明細</div>
+        <div class="perf-badge">真實客戶數據 · 已去識別化</div>
+      </div>
+      <table class="perf-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">案例說明</th>
+            <th>總繳投入本金</th>
+            <th>累計已領配息</th>
+            <th>目前帳戶價值</th>
+            <th>本金增值幅度</th>
+            <th>綜合收益率</th>
+          </tr>
+        </thead>
+        <tbody id="perf-tbody"></tbody>
+      </table>
+      <div class="perf-dis">
+        <div class="perf-dis-text">
+          ⚠ 以上數據為真實客戶案例，已進行去識別化處理，僅供策略說明參考，不構成投資承諾或績效保證。<br>
+          實際報酬受市場波動影響，過往績效不代表未來結果。投資前請詳閱基金公開說明書，並諮詢專業顧問。
+        </div>
+      </div>
+    </div>
+    <!-- viz section -->
+    <div class="perf-viz">
+      <div class="perf-viz-box">
+        <div class="pvb-title">各案例本金增值幅度比較</div>
+        <div class="bar-wrap" id="perf-bar-gain"></div>
+      </div>
+      <div class="perf-viz-box">
+        <div class="pvb-title">各案例已領配息金額比較</div>
+        <div class="bar-wrap" id="perf-bar-div"></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:right">
+      <button class="rpt-btn" onclick="buildReport();goTo(5)">將此績效整合進七年報表 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 5: 七年財務報表 ══════════ -->
+<div class="section" id="sec-5">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <div class="eyebrow-row"><div class="eyebrow-line"></div><div class="eyebrow-txt">7-Year Integrated Financial Report</div></div>
+      <div class="sec-title">七年完整財務報表</div>
+      <div class="sec-sub">整合所有試算結果 · 一份完整的客戶規劃報告</div>
+    </div>
+    <div class="h-rule"></div>
+    <div class="rpt-meta-row">
+      <div class="rpt-meta">
+        報告日期：<span id="rpt-date">—</span><br>
+        客戶本金：<span id="rpt-cap">—</span> 萬元 &nbsp;·&nbsp;
+        防守層：<span id="rpt-def">—</span> 萬 &nbsp;·&nbsp;
+        進攻層：<span id="rpt-off">—</span> 萬 &nbsp;·&nbsp;
+        保險公司：<span id="rpt-ins">—</span>
+      </div>
+      <div class="rpt-btn-row">
+        <button class="rpt-btn" onclick="buildReport()">🔄 重新整合試算</button>
+        <button class="rpt-btn" onclick="window.print()">🖨 列印 / 存 PDF</button>
+      </div>
+    </div>
+    <div class="rpt-kpi-grid" id="rpt-kpis"></div>
+    <div class="rpt-tl">
+      <div class="rpt-tl-title">七年現金流與資產增長時間軸</div>
+      <table class="rpt-table">
+        <thead>
+          <tr>
+            <th>年度</th>
+            <th>防守層月配息</th>
+            <th>保單月利息</th>
+            <th>月淨現金流</th>
+            <th>累積配息收入</th>
+            <th>進攻層本金</th>
+            <th>進攻層增值</th>
+          </tr>
+        </thead>
+        <tbody id="rpt-tbody"></tbody>
+      </table>
+    </div>
+    <div class="rpt-dis">
+      <div class="rpt-dis-text">
+        ⚠ 本報表為示意性財務規劃，數據基於歷史績效及假設報酬率估算，不構成投資承諾或保證。<br>
+        月配息率：安聯收益成長 8%（年化）、瀚亞科技 7%（年化）；進攻層：安聯台灣科技基金歷史績效供參考。<br>
+        實際報酬受市場波動影響，投資前請詳閱基金公開說明書，並諮詢專業顧問。<br>
+        保單貸款利率依各保險公司公告為準，本報表採用選定保險公司之最新公告利率。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="btm-bar">
+  <div class="bb-l">
+    <div class="bb-i">Allianz Income &amp; Growth</div>
+    <div class="bb-sep"></div>
+    <div class="bb-i">Eastspring Technology</div>
+    <div class="bb-sep"></div>
+    <div class="bb-i">Allianz Taiwan Technology</div>
+  </div>
+  <div class="bb-r">© Eddie Lin · Fude Wealth · 2025</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+// 保單貸款利率表（每季更新）
+const INSURERS = [
+  {name:'富邦人壽', rate:3.25, max:90, note:'主約保單',     upd:'2025-Q1'},
+  {name:'國泰人壽', rate:3.50, max:85, note:'增額終身壽險', upd:'2025-Q1'},
+  {name:'南山人壽', rate:3.35, max:80, note:'利率變動型',   upd:'2025-Q1'},
+  {name:'中國人壽', rate:3.50, max:80, note:'終身壽險',     upd:'2025-Q1'},
+  {name:'台灣人壽', rate:3.60, max:75, note:'儲蓄型保單',   upd:'2025-Q1'},
+  {name:'全球人壽', rate:3.40, max:80, note:'投資型保單',   upd:'2025-Q1'},
+  {name:'安聯人壽', rate:3.45, max:80, note:'增額壽險',     upd:'2025-Q1'},
+  {name:'宏泰人壽', rate:3.55, max:75, note:'終身型',       upd:'2025-Q1'},
+];
+
+// 實戰績效案例
+const PERF_CASES = [
+  {
+    label:'案例一', tag:'g', tagTxt:'百萬標竿',
+    desc:'百萬標竿型 · 安聯收益成長 + 瀚亞科技 9:1',
+    principal:1000000, dividend:52509,  value:1579393,
+    note:'持有期間約 18 個月'
+  },
+  {
+    label:'案例二', tag:'b', tagTxt:'尊榮大額',
+    desc:'尊榮大額型 · 500萬複合策略配置',
+    principal:5000000, dividend:1256447, value:5428620,
+    note:'持有期間約 36 個月，已領百萬配息'
+  },
+  {
+    label:'案例三', tag:'g', tagTxt:'小資高效',
+    desc:'小資高效型 · 50萬快速佈局',
+    principal:500000,  dividend:23764,  value:764291,
+    note:'持有期間約 12 個月'
+  },
+  {
+    label:'案例四', tag:'y', tagTxt:'穩健保本',
+    desc:'穩健保本型 · 300萬防守層為主',
+    principal:3000000, dividend:87139,  value:3008341,
+    note:'持有期間約 10 個月，極致保本策略'
+  },
+  {
+    label:'案例五', tag:'g', tagTxt:'快速衝刺',
+    desc:'快速衝刺型 · 100萬進攻層為主',
+    principal:1000000, dividend:14950,  value:1268442,
+    note:'持有期間約 8 個月'
+  },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let S = {
+  selIns: 0,
+  fundMode: 'both',
+  cYr: 7,
+};
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+window.addEventListener('load', () => {
+  buildDots();
+  buildInsGrid();
+  buildPerfTable();
+  calcD();
+  calcC();
+  calcL();
+  buildReport();
+  document.getElementById('rpt-date').textContent = new Date().toLocaleDateString('zh-TW');
+  setupTooltip();
+});
+
+function buildDots(){
+  const g = document.getElementById('dots');
+  if(!g) return;
+  for(let i=0;i<80;i++){const d=document.createElement('div');d.className='bg-dot';g.appendChild(d)}
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION — all links have calc + section switch
+═══════════════════════════════════════ */
+const SEC_IDS = ['home','defense','compound','loan','perf','report'];
+
+function goTo(idx){
+  // hide all
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  // show target
+  document.getElementById('sec-'+idx).classList.add('active');
+  document.getElementById('nl-'+idx).classList.add('active');
+  window.scrollTo(0,0);
+  // run the relevant calc when switching
+  if(idx===1){ calcD(); }
+  if(idx===2){ calcC(); }
+  if(idx===3){ calcL(); }
+  if(idx===4){ buildPerfTable(); }
+  if(idx===5){ buildReport(); }
+}
+
+/* ═══════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════ */
+function setupTooltip(){
+  const tip = document.getElementById('tip');
+  document.addEventListener('mousemove', e=>{
+    const t = e.target.closest('[data-tip]');
+    if(t){ tip.style.display='block'; tip.textContent=t.dataset.tip; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-36)+'px'; }
+    else  tip.style.display='none';
+  });
+}
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const fmt  = n => Math.round(n).toLocaleString('zh-TW');
+const fmtM = n => (+n).toFixed(2);
+const fmtP = n => (+n).toFixed(2)+'%';
+
+function gv(id){ return parseFloat(document.getElementById(id).value)||0; }
+function sv(id,v){ document.getElementById(id).value=v; }
+
+/* ═══════════════════════════════════════
+   SECTION 1 — DEFENSE LAYER
+═══════════════════════════════════════ */
+function setFund(m){
+  S.fundMode = m;
+  ['both','allianz','eastspring'].forEach(k=>{
+    document.getElementById('ft-'+k).classList.toggle('on', k===m);
+  });
+  calcD();
+}
+function setDCap(v){ sv('d-cap',v); calcD(); }
+function setDLv(v){ sv('d-living',v); calcD(); }
+
+function calcD(){
+  const cap    = gv('d-cap')    || 300;
+  const pct    = gv('d-pct')    || 90;
+  const alloc  = gv('d-alloc')  || 50;
+  const living = gv('d-living') || 30000;
+
+  const defAmt  = cap * (pct/100);
+  const aAmt    = defAmt * (alloc/100);
+  const eAmt    = defAmt * ((100-alloc)/100);
+
+  const rA = (S.fundMode==='eastspring') ? 0 : 0.08;
+  const rE = (S.fundMode==='allianz')    ? 0 : 0.07;
+
+  const moA     = aAmt  * 10000 * rA / 12;
+  const moE     = eAmt  * 10000 * rE / 12;
+  const moTotal = moA + moE;
+  const annual  = moTotal * 12;
+  const net     = moTotal - living;
+
+  // output
+  document.getElementById('d-monthly').innerHTML = `${fmt(moTotal)}<span class="u">元</span>`;
+  document.getElementById('d-deploy').textContent = `防守層部署 ${fmtM(defAmt)} 萬（安聯 ${fmtM(aAmt)} 萬 + 瀚亞 ${fmtM(eAmt)} 萬）`;
+  document.getElementById('d-a-mo').textContent  = fmt(moA);
+  document.getElementById('d-e-mo').textContent  = fmt(moE);
+  el('d-net', fmt(net), net>=0?'pos':'neg');
+  document.getElementById('d-annual').textContent = fmt(annual);
+
+  // 12-month bars
+  const wrap = document.getElementById('d-bars');
+  wrap.innerHTML = '';
+  for(let m=1;m<=12;m++){
+    const cum  = moTotal * m;
+    const pct2 = (m/12)*100;
+    const row  = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `<div class="bar-lbl">${m} 個月</div>
+      <div class="bar-track"><div class="bar-fill green" style="width:0%" data-p="${pct2}"></div></div>
+      <div class="bar-val">${fmt(cum)} 元</div>`;
+    wrap.appendChild(row);
+  }
+  raf(()=>{ document.querySelectorAll('#d-bars .bar-fill').forEach(b=>b.style.width=b.dataset.p+'%'); });
+}
+
+/* ═══════════════════════════════════════
+   SECTION 2 — COMPOUND
+═══════════════════════════════════════ */
+function setCCap(v){ sv('c-cap',v); calcC(); }
+function setCYr(y){
+  S.cYr = y;
+  document.querySelectorAll('#c-yr-btns .tbtn').forEach(b=>b.classList.toggle('on', b.textContent===y+'年'));
+  calcC();
+}
+function syncToCompound(){
+  sv('c-cap', gv('d-cap') || 300);
+}
+
+function calcC(){
+  const cap  = gv('c-cap')  || 300;
+  const pct  = gv('c-pct')  || 10;
+  const rate = gv('c-rate') || 10;
+  const add  = gv('c-add')  || 0;
+  const yr   = S.cYr || 7;
+
+  const init = cap * (pct/100);
+  const r    = rate/100;
+  let vals   = [], v = init;
+  for(let y=1;y<=yr;y++){
+    v = v*(1+r) + add;
+    vals.push(+v.toFixed(4));
+  }
+  const final = vals[vals.length-1];
+  const gain  = final - init - add*yr;
+  const mult  = final / init;
+
+  document.getElementById('c-final').innerHTML = `${fmtM(final)}<span class="u">萬</span>`;
+  document.getElementById('c-note').textContent  = `${yr} 年後，${fmtM(init)} 萬 → ${fmtM(final)} 萬（×${mult.toFixed(2)}）`;
+  document.getElementById('c-init').textContent  = fmtM(init)+' 萬';
+  document.getElementById('c-gain').textContent  = '+'+fmtM(gain)+' 萬';
+  document.getElementById('c-mult').textContent  = '×'+mult.toFixed(2);
+  document.getElementById('c-rate-show').textContent = rate+'%';
+
+  // chart
+  const chart = document.getElementById('c-chart');
+  chart.innerHTML = '';
+  const maxV = final;
+  vals.forEach((val,i)=>{
+    const bp = (val/maxV)*100;
+    const row = document.createElement('div');
+    row.className = 'cmp-row';
+    row.innerHTML = `<div class="cmp-yr">${i+1}年</div>
+      <div class="cmp-track"><div class="cmp-fill" style="width:0%" data-p="${bp}"></div></div>
+      <div class="cmp-amt">${fmtM(val)} 萬<span class="cmp-x">×${(val/init).toFixed(2)}</span></div>`;
+    chart.appendChild(row);
+  });
+  raf(()=>{ document.querySelectorAll('#c-chart .cmp-fill').forEach(b=>b.style.width=b.dataset.p+'%'); });
+}
+
+/* ═══════════════════════════════════════
+   SECTION 3 — POLICY LOAN
+═══════════════════════════════════════ */
+function buildInsGrid(){
+  const grid = document.getElementById('ins-grid');
+  grid.innerHTML = '';
+  INSURERS.forEach((ins,i)=>{
+    const d = document.createElement('div');
+    d.className = 'ins-card'+(i===0?' on':'');
+    d.setAttribute('data-tip',`最新利率 ${ins.rate}% · 最高成數 ${ins.max}%`);
+    d.onclick = ()=>selectIns(i);
+    d.innerHTML = `<div class="ins-name">${ins.name}</div>
+      <div class="ins-rate-big">${ins.rate}<span style="font-size:.78rem;opacity:.36">%</span></div>
+      <div class="ins-note">${ins.note}</div>
+      <div class="ins-upd">更新：${ins.upd}</div>`;
+    grid.appendChild(d);
+  });
+}
+
+function selectIns(i){
+  S.selIns = i;
+  document.querySelectorAll('.ins-card').forEach((c,idx)=>c.classList.toggle('on', idx===i));
+  const maxR = INSURERS[i].max;
+  const ratioEl = document.getElementById('l-ratio');
+  ratioEl.max = maxR;
+  if(parseFloat(ratioEl.value) > maxR){ ratioEl.value = maxR; document.getElementById('l-ratio-v').textContent = maxR+'%'; }
+  calcL();
+}
+
+function setLPol(v){ sv('l-policy',v); calcL(); }
+function syncToLoan(){
+  // pull live defense calc result
+  const cap    = gv('d-cap')   || 300;
+  const pct    = gv('d-pct')   || 90;
+  const alloc  = gv('d-alloc') || 50;
+  const defAmt = cap*(pct/100);
+  const aAmt   = defAmt*(alloc/100);
+  const eAmt   = defAmt*((100-alloc)/100);
+  const rA = (S.fundMode==='eastspring')?0:0.08;
+  const rE = (S.fundMode==='allianz')?0:0.07;
+  const mo = (aAmt*10000*rA + eAmt*10000*rE)/12;
+  sv('l-income', Math.round(mo));
+  sv('l-policy', cap);
+}
+
+function calcL(){
+  const policy = gv('l-policy') || 300;
+  const ratio  = gv('l-ratio')  || 80;
+  const income = gv('l-income') || 33750;
+  const invR   = gv('l-inv')    || 15;
+  const ins    = INSURERS[S.selIns];
+
+  const loanAmt    = policy * (Math.min(ratio, ins.max)/100);
+  const annualInt  = loanAmt * 10000 * (ins.rate/100);
+  const monthlyInt = annualInt / 12;
+  const netMo      = income - monthlyInt;
+  const spread     = invR - ins.rate;
+
+  document.getElementById('l-amt').innerHTML    = `${fmtM(loanAmt)}<span class="lc-u">萬</span>`;
+  document.getElementById('l-amt-n').textContent = `${ins.name} · 最高成數 ${ins.max}%`;
+  document.getElementById('l-mint').innerHTML   = `${fmt(monthlyInt)}<span class="lc-u">元</span>`;
+  document.getElementById('l-mint-n').textContent= `年利率 ${ins.rate}% · 僅還息`;
+  document.getElementById('l-aint').innerHTML   = `${fmt(annualInt)}<span class="lc-u">元</span>`;
+  document.getElementById('l-aint-n').textContent= `月收入 ${fmt(income)} 元可支付`;
+  document.getElementById('sp-inc').textContent = fmt(income);
+  document.getElementById('sp-int').textContent = fmt(monthlyInt);
+  elNet('sp-net', fmt(netMo), netMo>=0);
+  document.getElementById('sp-spread').textContent = `+${spread.toFixed(2)}%`;
+
+  // comparison table
+  const body = document.getElementById('ins-cmp-body');
+  body.innerHTML = '';
+  INSURERS.forEach((ins2,i)=>{
+    const l2
