@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDDIE LIN | Cover</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;600;700;900&family=Noto+Sans+TC:wght@100;300;400;500&family=Oswald:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #050505;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Raleway', sans-serif;
+    }
+
+    /* ── COVER WRAPPER ── */
+    .cover {
+      position: relative;
+      width: 1440px;
+      height: 900px;
+      background: #060606;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* ════════════════════════════
+       BACKGROUND ARCHITECTURE
+    ════════════════════════════ */
+
+    /* Grid lines */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+
+    /* Diagonal slash — main */
+    .bg-slash-main {
+      position: absolute;
+      top: -20%;
+      left: 52%;
+      width: 2px;
+      height: 160%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,0.06) 25%,
+        rgba(255,255,255,0.12) 50%,
+        rgba(255,255,255,0.06) 75%,
+        transparent 100%
+      );
+      transform: rotate(-14deg);
+      transform-origin: center;
+    }
+    .bg-slash-2 {
+      position: absolute;
+      top: -20%;
+      left: 58%;
+      width: 1px;
+      height: 160%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,0.03) 40%,
+        rgba(255,255,255,0.06) 55%,
+        transparent 100%
+      );
+      transform: rotate(-14deg);
+      transform-origin: center;
+    }
+    .bg-slash-3 {
+      position: absolute;
+      top: -20%;
+      left: 46%;
+      width: 1px;
+      height: 160%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,0.02) 35%,
+        rgba(255,255,255,0.04) 55%,
+        transparent 100%
+      );
+      transform: rotate(-14deg);
+      transform-origin: center;
+    }
+
+    /* Large triangle — bottom right */
+    .bg-tri-br {
+      position: absolute;
+      bottom: -60px;
+      right: -60px;
+      width: 0; height: 0;
+      border-left: 420px solid transparent;
+      border-bottom: 420px solid rgba(255,255,255,0.028);
+    }
+    /* Medium triangle — top left */
+    .bg-tri-tl {
+      position: absolute;
+      top: -40px;
+      left: -40px;
+      width: 0; height: 0;
+      border-right: 280px solid transparent;
+      border-top: 280px solid rgba(255,255,255,0.018);
+    }
+    /* Small accent triangle */
+    .bg-tri-accent {
+      position: absolute;
+      bottom: 120px;
+      right: 200px;
+      width: 0; height: 0;
+      border-left: 60px solid transparent;
+      border-right: 60px solid transparent;
+      border-bottom: 104px solid rgba(255,255,255,0.035);
+    }
+
+    /* Radial glow */
+    .bg-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 25% 55%, rgba(255,255,255,0.025) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 78% 30%, rgba(255,255,255,0.015) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Horizontal rule at 38% from top */
+    .bg-rule {
+      position: absolute;
+      top: 38%;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255,255,255,0.04) 20%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.04) 80%,
+        transparent 100%
+      );
+    }
+
+    /* Dot matrix — right zone */
+    .bg-dots {
+      position: absolute;
+      right: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      grid-template-columns: repeat(8, 16px);
+      grid-template-rows: repeat(10, 16px);
+      gap: 10px;
+      opacity: 0.12;
+    }
+    .bg-dot {
+      width: 2px; height: 2px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    /* ════════════════════════════
+       LEFT PANEL — CONTENT
+    ════════════════════════════ */
+    .left-panel {
+      position: relative;
+      z-index: 10;
+      width: 55%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 80px 80px 100px;
+    }
+
+    /* Top label */
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 52px;
+    }
+    .eyebrow-line {
+      width: 32px; height: 1px;
+      background: rgba(255,255,255,0.3);
+    }
+    .eyebrow-text {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 7px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+    }
+
+    /* Main name */
+    .name-block { margin-bottom: 6px; }
+    .name-prefix {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 1rem;
+      letter-spacing: 14px;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .name-main {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 900;
+      font-size: clamp(4rem, 6.5vw, 6rem);
+      letter-spacing: 18px;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 0.9;
+      display: block;
+    }
+    .name-main .name-dim {
+      color: rgba(255,255,255,0.18);
+    }
+
+    /* Chinese title */
+    .zh-title {
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 100;
+      font-size: 1.05rem;
+      letter-spacing: 8px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 14px;
+      margin-bottom: 48px;
+    }
+
+    /* Divider with triangle */
+    .title-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .divider-tri {
+      width: 0; height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 14px solid rgba(255,255,255,0.5);
+    }
+    .divider-line {
+      flex: 1;
+      max-width: 200px;
+      height: 1px;
+      background: linear-gradient(to right, rgba(255,255,255,0.3), transparent);
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 52px;
+    }
+    .stat-item {
+      padding: 20px 28px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+    .stat-item:first-child { padding-left: 0; border-left: none; }
+    .stat-val {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 300;
+      font-size: 2.2rem;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+    .stat-val sup {
+      font-size: 0.9rem;
+      opacity: 0.5;
+      vertical-align: super;
+    }
+    .stat-label {
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 300;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+
+    /* Tag pills */
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tag {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 7px 16px;
+      transition: all 0.3s;
+    }
+
+    /* ════════════════════════════
+       RIGHT PANEL — VISUAL
+    ════════════════════════════ */
+    .right-panel {
+      position: relative;
+      z-index: 10;
+      width: 45%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 80px 100px 80px 60px;
+    }
+
+    /* Large number watermark */
+    .watermark {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-60%);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 22rem;
+      color: rgba(255,255,255,0.025);
+      line-height: 1;
+      letter-spacing: -10px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Feature cards */
+    .feature-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .feature-card {
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 20px 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: rgba(255,255,255,0.01);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 0;
+      background: rgba(255,255,255,0.2);
+      transition: height 0.4s;
+    }
+    .fc-num {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 200;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.15);
+      min-width: 28px;
+      line-height: 1;
+      padding-top: 2px;
+    }
+    .fc-body {}
+    .fc-label {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 0.58rem;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .fc-title {
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 400;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 2px;
+    }
+    .fc-val {
+      margin-left: auto;
+      font-family: 'Oswald', sans-serif;
+      font-weight: 300;
+      font-size: 1.3rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 1px;
+      align-self: center;
+      white-space: nowrap;
+      padding-left: 12px;
+    }
+
+    /* Bottom tagline in right panel */
+    .right-bottom {
+      position: absolute;
+      bottom: 70px;
+      right: 100px;
+      text-align: right;
+    }
+    .right-bottom-quote {
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 100;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 3px;
+      line-height: 2;
+    }
+
+    /* ════════════════════════════
+       BOTTOM BAR
+    ════════════════════════════ */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 56px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 100px;
+      z-index: 20;
+    }
+    .bb-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .bb-item {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 0.58rem;
+      letter-spacing: 5px;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
+    .bb-sep {
+      width: 1px; height: 14px;
+      background: rgba(255,255,255,0.08);
+    }
+    .bb-right {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 0.58rem;
+      letter-spacing: 5px;
+      color: rgba(255,255,255,0.15);
+      text-transform: uppercase;
+    }
+
+    /* ════════════════════════════
+       TOP BAR
+    ════════════════════════════ */
+    .top-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 100px;
+      z-index: 20;
+    }
+    .tb-logo {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 8px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+    }
+    .tb-nav {
+      display: flex;
+      gap: 32px;
+    }
+    .tb-nav-item {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
+
+    /* Vertical text — left edge */
+    .vert-text {
+      position: absolute;
+      left: 32px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 0.55rem;
+      letter-spacing: 6px;
+      color: rgba(255,255,255,0.12);
+      text-transform: uppercase;
+      white-space: nowrap;
+      z-index: 20;
+    }
+
+    /* Triangle accent — header right */
+    .tri-header {
+      position: absolute;
+      top: 52px; right: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .tri-sm { width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:10px solid rgba(255,255,255,0.12); }
+    .tri-xs { width:0; height:0; border-left:3px solid transparent; border-right:3px solid transparent; border-bottom:6px solid rgba(255,255,255,0.07); }
+  </style>
+</head>
+<body>
+<div class="cover">
+
+  <!-- Background layers -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-slash-main"></div>
+  <div class="bg-slash-2"></div>
+  <div class="bg-slash-3"></div>
+  <div class="bg-tri-br"></div>
+  <div class="bg-tri-tl"></div>
+  <div class="bg-tri-accent"></div>
+  <div class="bg-rule"></div>
+
+  <!-- Dot matrix -->
+  <div class="bg-dots" id="dots"></div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="tb-logo">Fude Wealth &nbsp;·&nbsp; 富得財富管理</div>
+    <div class="tb-nav">
+      <div class="tb-nav-item">Asset Allocation</div>
+      <div class="tb-nav-item">Cash Flow</div>
+      <div class="tb-nav-item">Hedge Strategy</div>
+      <div class="tb-nav-item">Compound Growth</div>
+    </div>
+  </div>
+
+  <!-- Vertical edge text -->
+  <div class="vert-text">Financial Advisory &nbsp;·&nbsp; 2024</div>
+
+  <!-- Triangle accent -->
+  <div class="tri-header">
+    <div class="tri-sm"></div>
+    <div class="tri-xs"></div>
+  </div>
+
+  <!-- Watermark -->
+  <div class="watermark">90<br>10</div>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <div class="eyebrow-text">Asset Consultant Manager</div>
+    </div>
+
+    <div class="name-block">
+      <span class="name-prefix">Eddie &nbsp;</span>
+      <span class="name-main">LIN<span class="name-dim">.</span></span>
+    </div>
+    <div class="zh-title">林顧問 &nbsp;·&nbsp; 富得現金流資產配置</div>
+
+    <div class="title-divider">
+      <div class="divider-tri"></div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-val">15<sup>%</sup></div>
+        <div class="stat-label">年化現金流綜效</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">11.5<sup>%</sup></div>
+        <div class="stat-label">最高淨利差</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">×2</div>
+        <div class="stat-label">七年本金翻倍</div>
+      </div>
+    </div>
+
+    <div class="tag-row">
+      <div class="tag">財務配置</div>
+      <div class="tag">現金流對沖</div>
+      <div class="tag">複利成長</div>
+      <div class="tag">負債管理</div>
+      <div class="tag">資產傳承</div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="feature-cards">
+
+      <div class="feature-card">
+        <div class="fc-num">01</div>
+        <div class="fc-body">
+          <div class="fc-label">Defense Layer</div>
+          <div class="fc-title">月配息防守層</div>
+        </div>
+        <div class="fc-val">90%</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="fc-num">02</div>
+        <div class="fc-body">
+          <div class="fc-label">Offense Layer</div>
+          <div class="fc-title">複利雪球進攻層</div>
+        </div>
+        <div class="fc-val">10%</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="fc-num">03</div>
+        <div class="fc-body">
+          <div class="fc-label">Leverage Spread</div>
+          <div class="fc-title">保單借款淨利差</div>
+        </div>
+        <div class="fc-val">+11.5%</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="fc-num">04</div>
+        <div class="fc-body">
+          <div class="fc-label">Growth Target</div>
+          <div class="fc-title">七年本金增長目標</div>
+        </div>
+        <div class="fc-val">×1.95</div>
+      </div>
+
+    </div>
+
+    <div class="right-bottom">
+      <div class="right-bottom-quote">
+        進可攻，退可守<br>
+        讓資產為您工作
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <div class="bb-left">
+      <div class="bb-item">Allianz Income &amp; Growth</div>
+      <div class="bb-sep"></div>
+      <div class="bb-item">Eastspring Technology</div>
+      <div class="bb-sep"></div>
+      <div class="bb-item">Allianz Taiwan Technology</div>
+    </div>
+    <div class="bb-right">© Eddie Lin &nbsp;·&nbsp; Fude Wealth</div>
+  </div>
+
+</div>
+
+<script>
+  // Generate dot matrix
+  const dotGrid = document.getElementById('dots');
+  for (let i = 0; i < 80; i++) {
+    const d = document.createElement('div');
+    d.className = 'bg-dot';
+    dotGrid.appendChild(d);
+  }
+</script>
+</body>
+</html>
