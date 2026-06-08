@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDDIE LIN | Fude Wealth</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;600;700;900&family=Noto+Sans+TC:wght@100;300;400;500&family=Oswald:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--border:rgba(255,255,255,0.08);--muted:rgba(255,255,255,0.25);--faint:rgba(255,255,255,0.04)}
+    html,body{width:100%;min-height:100vh;background:#050505;font-family:'Raleway',sans-serif;color:#fff;overflow-x:hidden;scroll-behavior:smooth}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(5,5,5,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px;z-index:200;}
+    .nav-logo{font-family:'Raleway',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:8px;color:rgba(255,255,255,.55);text-transform:uppercase;white-space:nowrap}
+    .nav-links{display:flex;gap:0}
+    .nav-link{font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:3px;color:rgba(255,255,255,.22);text-transform:uppercase;padding:18px 14px;cursor:pointer;border-bottom:2px solid transparent;transition:color .3s,border-color .3s;white-space:nowrap;}
+    .nav-link:hover,.nav-link.active{color:rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.4)}
+
+    /* SECTIONS */
+    .section{display:none;min-height:100vh;padding-top:56px;padding-bottom:80px}
+    .section.active{display:block}
+    .sec-inner{max-width:1280px;margin:0 auto;padding:72px 60px}
+    .sec-header{margin-bottom:56px}
+    .sec-eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .sec-eyebrow-line{width:24px;height:1px;background:rgba(255,255,255,.3)}
+    .sec-eyebrow-text{font-weight:300;font-size:.62rem;letter-spacing:6px;color:rgba(255,255,255,.3);text-transform:uppercase}
+    .sec-title{font-family:'Oswald',sans-serif;font-weight:300;font-size:2.4rem;letter-spacing:6px;color:#fff;text-transform:uppercase;margin-bottom:10px}
+    .sec-sub{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.82rem;color:rgba(255,255,255,.32);letter-spacing:4px}
+    .h-rule{height:1px;background:linear-gradient(to right,rgba(255,255,255,.12),transparent);margin-bottom:52px}
+
+    /* HERO */
+    #sec-home{background:#060606;position:relative;overflow:hidden}
+    .hero-wrap{position:relative;width:100%;height:calc(100vh - 56px);display:flex;overflow:hidden}
+    .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;pointer-events:none}
+    .bg-glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 25% 55%,rgba(255,255,255,.025) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 78% 30%,rgba(255,255,255,.015) 0%,transparent 60%);pointer-events:none}
+    .bg-slash{position:absolute;top:-20%;height:160%;transform:rotate(-14deg);transform-origin:center}
+    .bg-slash.s1{left:52%;width:2px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.12) 50%,transparent)}
+    .bg-slash.s2{left:58%;width:1px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.06) 50%,transparent)}
+    .bg-slash.s3{left:46%;width:1px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.04) 50%,transparent)}
+    .bg-tri-br{position:absolute;bottom:-60px;right:-60px;width:0;height:0;border-left:420px solid transparent;border-bottom:420px solid rgba(255,255,255,.025)}
+    .bg-tri-tl{position:absolute;top:-40px;left:-40px;width:0;height:0;border-right:280px solid transparent;border-top:280px solid rgba(255,255,255,.018)}
+    .bg-rule{position:absolute;top:38%;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.08) 50%,transparent)}
+    .bg-dots{position:absolute;right:60px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(8,16px);grid-template-rows:repeat(10,16px);gap:10px;opacity:.1}
+    .bg-dot{width:2px;height:2px;background:#fff;border-radius:50%}
+    .watermark{position:absolute;right:40px;top:50%;transform:translateY(-55%);font-family:'Oswald',sans-serif;font-weight:500;font-size:17rem;color:rgba(255,255,255,.02);line-height:1;letter-spacing:-10px;pointer-events:none;user-select:none}
+    .hero-left{position:relative;z-index:10;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:80px 80px 80px 100px}
+    .hero-right{position:relative;z-index:10;width:45%;height:100%;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:80px 100px 80px 40px}
+    .eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:40px}
+    .eyebrow-line{width:32px;height:1px;background:rgba(255,255,255,.3)}
+    .eyebrow-text{font-weight:300;font-size:.68rem;letter-spacing:7px;color:rgba(255,255,255,.38);text-transform:uppercase}
+    .name-prefix{font-weight:200;font-size:.95rem;letter-spacing:14px;color:rgba(255,255,255,.32);text-transform:uppercase;display:block;margin-bottom:4px}
+    .name-main{font-weight:900;font-size:clamp(3.2rem,5vw,5rem);letter-spacing:16px;text-transform:uppercase;color:#fff;line-height:.9;display:block}
+    .name-dim{color:rgba(255,255,255,.15)}
+    .zh-title{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.95rem;letter-spacing:8px;color:rgba(255,255,255,.42);margin-top:14px;margin-bottom:36px}
+    .title-divider{display:flex;align-items:center;gap:16px;margin-bottom:36px}
+    .divider-tri{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid rgba(255,255,255,.45)}
+    .divider-line{flex:1;max-width:180px;height:1px;background:linear-gradient(to right,rgba(255,255,255,.28),transparent)}
+    .stats-row{display:flex;gap:0;margin-bottom:40px}
+    .stat-item{padding:16px 22px;border-left:1px solid rgba(255,255,255,.07);cursor:pointer}
+    .stat-item:first-child{padding-left:0;border-left:none}
+    .stat-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.9rem;color:#fff;line-height:1;letter-spacing:2px}
+    .stat-val sup{font-size:.8rem;opacity:.45}
+    .stat-label{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.62rem;color:rgba(255,255,255,.32);margin-top:5px;letter-spacing:2px}
+    .tag-row{display:flex;flex-wrap:wrap;gap:9px}
+    .tag{font-weight:300;font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.1);padding:7px 14px;cursor:pointer;transition:all .3s}
+    .tag:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.32);background:rgba(255,255,255,.04)}
+    .cta-row{display:flex;gap:12px;margin-top:32px}
+    .btn-primary{font-family:'Raleway',sans-serif;font-weight:400;font-size:.62rem;letter-spacing:5px;text-transform:uppercase;padding:13px 30px;border:1px solid rgba(255,255,255,.45);color:#fff;cursor:pointer;background:transparent;transition:all .3s}
+    .btn-primary:hover{background:rgba(255,255,255,.07);border-color:#fff}
+    .btn-secondary{font-family:'Raleway',sans-serif;font-weight:300;font-size:.62rem;letter-spacing:5px;text-transform:uppercase;padding:13px 30px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.38);cursor:pointer;background:transparent;transition:all .3s}
+    .btn-secondary:hover{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.7)}
+    .feature-cards{display:flex;flex-direction:column;gap:2px;width:100%;max-width:340px}
+    .feature-card{border:1px solid rgba(255,255,255,.07);padding:17px 20px;display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.01);position:relative;overflow:hidden;cursor:pointer;transition:background .3s,border-color .3s}
+    .feature-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:rgba(255,255,255,.3);transition:height .35s}
+    .feature-card:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14)}
+    .feature-card:hover::before{height:100%}
+    .fc-num{font-family:'Oswald',sans-serif;font-weight:200;font-size:.95rem;color:rgba(255,255,255,.14);min-width:28px}
+    .fc-label{font-weight:300;font-size:.52rem;letter-spacing:4px;color:rgba(255,255,255,.28);text-transform:uppercase;margin-bottom:3px}
+    .fc-title{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.82rem;color:rgba(255,255,255,.78);letter-spacing:2px}
+    .fc-val{margin-left:auto;font-family:'Oswald',sans-serif;font-weight:300;font-size:1.2rem;color:rgba(255,255,255,.58);white-space:nowrap;padding-left:12px}
+    .right-bottom{position:absolute;bottom:70px;right:100px;text-align:right}
+    .right-bottom-quote{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.7rem;color:rgba(255,255,255,.18);letter-spacing:3px;line-height:2.3}
+
+    /* BOTTOM / VERT */
+    .bottom-bar{position:fixed;bottom:0;left:0;right:0;height:46px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;padding:0 60px;z-index:100;background:rgba(5,5,5,.92);backdrop-filter:blur(12px)}
+    .bb-left{display:flex;align-items:center;gap:18px}
+    .bb-item{font-weight:200;font-size:.52rem;letter-spacing:4px;color:rgba(255,255,255,.16);text-transform:uppercase}
+    .bb-sep{width:1px;height:12px;background:rgba(255,255,255,.06)}
+    .bb-right{font-weight:200;font-size:.52rem;letter-spacing:4px;color:rgba(255,255,255,.1);text-transform:uppercase}
+    .vert-text{position:fixed;left:22px;top:50%;transform:translateY(-50%) rotate(-90deg);font-weight:200;font-size:.48rem;letter-spacing:6px;color:rgba(255,255,255,.09);text-transform:uppercase;white-space:nowrap;z-index:50}
+
+    /* TOOLTIP */
+    .tooltip{position:fixed;display:none;background:rgba(8,8,8,.96);border:1px solid rgba(255,255,255,.1);padding:9px 16px;font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.68rem;color:rgba(255,255,255,.68);letter-spacing:2px;pointer-events:none;z-index:999;white-space:nowrap}
+
+    /* CALC PANELS */
+    .calc-wrap{display:grid;grid-template-columns:1fr 1.15fr;gap:36px}
+    .panel{border:1px solid rgba(255,255,255,.07);padding:36px;background:rgba(255,255,255,.01)}
+    .panel-title{font-family:'Raleway',sans-serif;font-weight:300;font-size:.6rem;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.05)}
+    .field{margin-bottom:24px}
+    .field-label{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.68rem;color:rgba(255,255,255,.38);letter-spacing:3px;margin-bottom:8px;display:block}
+    .field-row{display:flex;align-items:center}
+    .field-pfx{font-family:'Oswald',sans-serif;font-weight:200;font-size:.85rem;color:rgba(255,255,255,.28);padding:0 13px;border:1px solid rgba(255,255,255,.07);border-right:none;height:42px;display:flex;align-items:center;background:rgba(255,255,255,.02);white-space:nowrap}
+    input[type=number]{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.05rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:#fff;padding:9px 14px;height:42px;outline:none;transition:border-color .3s;width:100%;-moz-appearance:textfield}
+    input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+    input[type=number]:focus{border-color:rgba(255,255,255,.22)}
+    input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:rgba(255,255,255,.1);outline:none;margin-top:10px;width:100%}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fff;cursor:pointer}
+    .range-meta{display:flex;justify-content:space-between;margin-top:7px}
+    .range-meta span{font-weight:200;font-size:.53rem;letter-spacing:3px;color:rgba(255,255,255,.22)}
+    .qbtns{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+    .qbtn{font-weight:300;font-size:.52rem;letter-spacing:3px;border:1px solid rgba(255,255,255,.1);padding:6px 13px;color:rgba(255,255,255,.28);cursor:pointer;background:transparent;transition:all .22s}
+    .qbtn:hover,.qbtn.on{border-color:rgba(255,255,255,.32);color:rgba(255,255,255,.8);background:rgba(255,255,255,.04)}
+    .tbtns{display:flex;gap:6px;flex-wrap:wrap}
+    .tbtn{font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:.66rem;letter-spacing:2px;border:1px solid rgba(255,255,255,.1);padding:8px 16px;color:rgba(255,255,255,.28);cursor:pointer;background:transparent;transition:all .22s}
+    .tbtn:hover{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.68)}
+    .tbtn.on{border-color:rgba(255,255,255,.45);color:#fff;background:rgba(255,255,255,.05)}
+
+    /* Result boxes */
+    .res-main{border:1px solid rgba(255,255,255,.08);padding:28px 32px;background:rgba(255,255,255,.02);margin-bottom:2px}
+    .res-main-label{font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:16px}
+    .res-big{font-family:'Oswald',sans-serif;font-weight:300;font-size:3.2rem;color:#fff;line-height:1;letter-spacing:2px}
+    .res-big .unit{font-size:1.1rem;opacity:.38;margin-left:6px}
+    .res-note{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.68rem;color:rgba(255,255,255,.28);letter-spacing:3px;margin-top:10px}
+    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px}
+    .res-cell{border:1px solid rgba(255,255,255,.06);padding:18px 20px;background:rgba(255,255,255,.01)}
+    .rc-lbl{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.28);letter-spacing:3px;margin-bottom:7px}
+    .rc-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.35rem;color:rgba(255,255,255,.78);letter-spacing:1px}
+    .rc-val.pos{color:rgba(160,255,190,.82)}
+    .rc-val.neg{color:rgba(255,160,160,.82)}
+    .rc-note{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.22);letter-spacing:2px;margin-top:4px}
+
+    /* DEFENSE */
+    #sec-defense{background:#070707}
+    .fund-selector{display:flex;gap:2px;margin-bottom:2px;flex-wrap:wrap}
+    .fund-tab{border:1px solid rgba(255,255,255,.07);padding:16px 20px;cursor:pointer;transition:all .3s;flex:1;min-width:200px;background:rgba(255,255,255,.01)}
+    .fund-tab:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14)}
+    .fund-tab.on{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
+    .fund-tab-name{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.82rem;color:rgba(255,255,255,.75);letter-spacing:2px;margin-bottom:4px}
+    .fund-rate{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.4rem;color:#fff}
+    .fund-tab-sub{font-weight:300;font-size:.52rem;letter-spacing:3px;color:rgba(255,255,255,.25);margin-top:3px}
+    .def-bar-wrap{margin-top:16px}
+    .def-bar-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+    .def-bar-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.65rem;color:rgba(255,255,255,.3);min-width:90px;letter-spacing:2px}
+    .def-bar-track{flex:1;height:4px;background:rgba(255,255,255,.06)}
+    .def-bar-fill{height:100%;background:rgba(255,255,255,.22);transition:width .7s cubic-bezier(.4,0,.2,1)}
+    .def-bar-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:.8rem;color:rgba(255,255,255,.55);min-width:70px;text-align:right}
+
+    /* COMPOUND */
+    #sec-compound{background:#060606}
+    .compound-chart{margin-top:2px;border:1px solid rgba(255,255,255,.06);padding:28px;background:rgba(255,255,255,.01)}
+    .cc-title{font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.24);margin-bottom:20px}
+    .cc-bars{display:flex;flex-direction:column;gap:11px}
+    .cc-row{display:grid;grid-template-columns:44px 1fr 110px;align-items:center;gap:14px}
+    .cc-yr{font-family:'Oswald',sans-serif;font-weight:200;font-size:.78rem;color:rgba(255,255,255,.28)}
+    .cc-track{height:8px;background:rgba(255,255,255,.05);position:relative}
+    .cc-fill{height:100%;background:rgba(255,255,255,.2);transition:width .8s cubic-bezier(.4,0,.2,1);position:relative}
+    .cc-fill::after{content:'';position:absolute;right:0;top:-3px;width:1px;height:14px;background:rgba(255,255,255,.4)}
+    .cc-amount{font-family:'Oswald',sans-serif;font-weight:300;font-size:.82rem;color:rgba(255,255,255,.58);text-align:right}
+    .cc-mult{font-family:'Oswald',sans-serif;font-weight:200;font-size:.65rem;color:rgba(255,255,255,.3);margin-left:6px}
+
+    /* POLICY LOAN */
+    #sec-loan{background:#070707}
+    .insurer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:24px}
+    .insurer-card{border:1px solid rgba(255,255,255,.07);padding:16px;cursor:pointer;transition:all .28s;background:rgba(255,255,255,.01)}
+    .insurer-card:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14)}
+    .insurer-card.on{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
+    .ins-name{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:.78rem;color:rgba(255,255,255,.72);letter-spacing:2px;margin-bottom:5px}
+    .ins-rate{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.5rem;color:#fff;margin-bottom:3px}
+    .ins-note{font-weight:200;font-size:.5rem;letter-spacing:3px;color:rgba(255,255,255,.22);text-transform:uppercase}
+    .ins-update{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.55rem;color:rgba(255,255,255,.18);margin-top:4px}
+    .loan-result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:2px}
+    .loan-cell{border:1px solid rgba(255,255,255,.06);padding:22px;background:rgba(255,255,255,.01)}
+    .lc-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.28);letter-spacing:3px;margin-bottom:8px}
+    .lc-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.8rem;color:#fff;letter-spacing:1px}
+    .lc-unit{font-size:.85rem;opacity:.38;margin-left:4px}
+    .lc-note{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.22);letter-spacing:2px;margin-top:6px}
+    .spread-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding:16px 20px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01)}
+    .sp-item{text-align:center;flex:1}
+    .sp-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:1.4rem;color:#fff}
+    .sp-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.28);letter-spacing:2px;margin-top:4px}
+    .sp-sep{width:1px;height:40px;background:rgba(255,255,255,.07)}
+    .sp-arrow{font-size:1rem;color:rgba(255,255,255,.18)}
+    .sp-net{font-family:'Oswald',sans-serif;font-weight:300;font-size:2rem;color:rgba(180,255,200,.85)}
+    .sp-net-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(180,255,200,.5);letter-spacing:2px;margin-top:4px}
+
+    /* 7Y REPORT */
+    #sec-report{background:#060606}
+    .report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;flex-wrap:wrap;gap:16px}
+    .report-meta{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.7rem;color:rgba(255,255,255,.28);letter-spacing:3px;line-height:2}
+    .report-btn{font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:5px;text-transform:uppercase;padding:12px 28px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);cursor:pointer;background:transparent;transition:all .3s}
+    .report-btn:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.05)}
+    .report-top-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:2px}
+    .report-kpi{border:1px solid rgba(255,255,255,.07);padding:24px;background:rgba(255,255,255,.02)}
+    .rk-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.28);letter-spacing:3px;margin-bottom:10px}
+    .rk-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:2rem;color:#fff;letter-spacing:2px;margin-bottom:4px}
+    .rk-note{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.58rem;color:rgba(255,255,255,.2);letter-spacing:2px}
+    .report-timeline{border:1px solid rgba(255,255,255,.06);padding:28px;background:rgba(255,255,255,.01);margin-top:2px}
+    .rt-title{font-family:'Raleway',sans-serif;font-weight:300;font-size:.6rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.24);margin-bottom:24px}
+    .rt-table{width:100%;border-collapse:collapse}
+    .rt-table th{font-family:'Raleway',sans-serif;font-weight:300;font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 16px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+    .rt-table th:first-child{text-align:left}
+    .rt-table td{font-family:'Oswald',sans-serif;font-weight:300;font-size:.85rem;color:rgba(255,255,255,.62);padding:11px 16px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04)}
+    .rt-table td:first-child{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:rgba(255,255,255,.38);text-align:left;letter-spacing:2px}
+    .rt-table tr:hover td{background:rgba(255,255,255,.02)}
+    .rt-table .total-row td{color:rgba(255,255,255,.88);border-top:1px solid rgba(255,255,255,.1);border-bottom:none;font-size:.95rem}
+    .report-disclaimer{margin-top:24px;padding:16px 20px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.005)}
+    .disclaimer-text{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.2);letter-spacing:2px;line-height:2.2}
+
+    /* PERFORMANCE */
+    #sec-perf{background:#070707}
+    .perf-intro{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:2px}
+    .perf-kpi{border:1px solid rgba(255,255,255,.07);padding:24px;background:rgba(255,255,255,.02);text-align:center}
+    .pk-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:2.2rem;color:#fff;letter-spacing:2px;margin-bottom:6px}
+    .pk-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.3);letter-spacing:3px}
+    .perf-table-wrap{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.01);overflow:hidden;margin-top:2px}
+    .perf-table-header{padding:20px 28px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center}
+    .pth-title{font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.24)}
+    .pth-badge{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(160,255,190,.5);letter-spacing:3px;border:1px solid rgba(160,255,190,.2);padding:5px 12px}
+    .perf-table{width:100%;border-collapse:collapse}
+    .perf-table th{font-family:'Raleway',sans-serif;font-weight:300;font-size:.52rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:14px 28px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+    .perf-table th:first-child{text-align:left}
+    .perf-table td{font-family:'Oswald',sans-serif;font-weight:300;font-size:.88rem;color:rgba(255,255,255,.65);padding:16px 28px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);transition:background .2s}
+    .perf-table td:first-child{font-family:'Noto Sans TC',sans-serif;font-size:.75rem;color:rgba(255,255,255,.45);text-align:left;letter-spacing:2px}
+    .perf-table tr:hover td{background:rgba(255,255,255,.025)}
+    .perf-table .highlight-row td{background:rgba(255,255,255,.03)}
+    .perf-table .highlight-row td:first-child{color:rgba(255,255,255,.75)}
+    .gain-pos{color:rgba(160,255,190,.9)!important}
+    .gain-neg{color:rgba(255,160,160,.9)!important}
+    .gain-neutral{color:rgba(255,230,150,.9)!important}
+    .perf-bar-inline{display:inline-block;height:3px;background:rgba(160,255,190,.35);border-radius:0;vertical-align:middle;margin-left:8px}
+    .case-tag{display:inline-block;font-family:'Raleway',sans-serif;font-weight:200;font-size:.45rem;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(255,255,255,.1);padding:3px 8px;color:rgba(255,255,255,.28);margin-right:8px;vertical-align:middle}
+    .case-tag.tag-mega{border-color:rgba(160,255,190,.25);color:rgba(160,255,190,.5)}
+    .case-tag.tag-tech{border-color:rgba(150,200,255,.25);color:rgba(150,200,255,.5)}
+    .case-tag.tag-safe{border-color:rgba(255,230,150,.25);color:rgba(255,230,150,.5)}
+    .perf-note-row{padding:18px 28px;border-top:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.005)}
+    .perf-note-text{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.6rem;color:rgba(255,255,255,.18);letter-spacing:2px;line-height:2.2}
+    .perf-chart-section{margin-top:2px;display:grid;grid-template-columns:1fr 1fr;gap:2px}
+    .perf-chart-box{border:1px solid rgba(255,255,255,.06);padding:28px;background:rgba(255,255,255,.01)}
+    .pcb-title{font-family:'Raleway',sans-serif;font-weight:300;font-size:.55rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:20px}
+    .bar-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+    .bar-label{font-family:'Noto Sans TC',sans-serif;font-weight:100;font-size:.62rem;color:rgba(255,255,255,.35);min-width:80px;letter-spacing:2px}
+    .bar-track{flex:1;height:6px;background:rgba(255,255,255,.05);position:relative}
+    .bar-fill-green{height:100%;background:rgba(160,255,190,.3);transition:width .9s cubic-bezier(.4,0,.2,1);position:relative}
+    .bar-fill-green::after{content:'';position:absolute;right:0;top:-4px;width:1px;height:14px;background:rgba(160,255,190,.6)}
+    .bar-fill-blue{height:100%;background:rgba(150,200,255,.3);transition:width .9s cubic-bezier(.4,0,.2,1);position:relative}
+    .bar-fill-blue::after{content:'';position:absolute;right:0;top:-4px;width:1px;height:14px;background:rgba(150,200,255,.6)}
+    .bar-val{font-family:'Oswald',sans-serif;font-weight:300;font-size:.78rem;color:rgba(255,255,255,.5);min-width:80px;text-align:right}
+
+    @media print{
+      nav,.bottom-bar,.vert-text{display:none!important}
+      .section{display:block!important;padding-top:0!important}
+      #sec-report,#sec-perf{page-break-before:always}
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .fu{animation:fadeUp .55s ease forwards}
+    .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.24s}.d4{animation-delay:.32s}
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="vert-text">Financial Advisory · 2025</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Fude Wealth · 富得財富管理</div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="goNav('home',0)">首頁</div>
+    <div class="nav-link" onclick="goNav('defense',1)">月配息防守層</div>
+    <div class="nav-link" onclick="goNav('compound',2)">複利雪球試算</div>
+    <div class="nav-link" onclick="goNav('loan',3)">保單貸款試算</div>
+    <div class="nav-link" onclick="goNav('perf',4)">實戰績效</div>
+    <div class="nav-link" onclick="goNav('report',5)">七年財務報表</div>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="section active" id="sec-home">
+  <div class="hero-wrap">
+    <div class="bg-grid"></div><div class="bg-glow"></div>
+    <div class="bg-slash s1"></div><div class="bg-slash s2"></div><div class="bg-slash s3"></div>
+    <div class="bg-tri-br"></div><div class="bg-tri-tl"></div><div class="bg-rule"></div>
+    <div class="bg-dots" id="dots"></div>
+    <div class="watermark">90<br>10</div>
+    <div class="hero-left">
+      <div class="eyebrow fu"><div class="eyebrow-line"></div><div class="eyebrow-text">Asset Consultant Manager</div></div>
+      <div class="fu d1"><span class="name-prefix">Eddie</span><span class="name-main">LIN<span class="name-dim">.</span></span></div>
+      <div class="zh-title fu d2">林顧問 · 富得現金流資產配置</div>
+      <div class="title-divider fu d2"><div class="divider-tri"></div><div class="divider-line"></div></div>
+      <div class="stats-row fu d3">
+        <div class="stat-item" onclick="goNav('defense',1)" data-tip="點擊進入月配息試算">
+          <div class="stat-val">15<sup>%</sup></div><div class="stat-label">年化現金流綜效</div>
+        </div>
+        <div class="stat-item" onclick="goNav('loan',3)" data-tip="點擊進入保單貸款試算">
+          <div class="stat-val">11.5<sup>%</sup></div><div class="stat-label">最高淨利差</div>
+        </div>
+        <div class="stat-item" onclick="goNav('perf',4)" data-tip="點擊查看實戰績效">
+          <div class="stat-val">+57<sup>%</sup></div><div class="stat-label">最高案例增值幅度</div>
+        </div>
+        <div class="stat-item" onclick="goNav('report',5)" data-tip="點擊進入七年財務報表">
+          <div class="stat-val">×2</div><div class="stat-label">七年本金翻倍</div>
+        </div>
+      </div>
+      <div class="tag-row fu d4">
+        <div class="tag" onclick="goNav('defense',1)">月配息試算</div>
+        <div class="tag" onclick="goNav('compound',2)">複利雪球試算</div>
+        <div class="tag" onclick="goNav('loan',3)">保單貸款試算</div>
+        <div class="tag" onclick="goNav('perf',4)">實戰績效</div>
+        <div class="tag" onclick="goNav('report',5)">七年財務報表</div>
+      </div>
+      <div class="cta-row fu d4">
+        <button class="btn-primary" onclick="goNav('defense',1)">立即試算月配息 →</button>
+        <button class="btn-secondary" onclick="goNav('perf',4)">查看實戰績效</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="feature-cards">
+        <div class="feature-card" onclick="goNav('defense',1)" data-tip="計算月配息金額">
+          <div class="fc-num">01</div>
+          <div style="flex:1"><div class="fc-label">Defense Layer</div><div class="fc-title">月配息防守層試算</div></div>
+          <div class="fc-val">90%</div>
+        </div>
+        <div class="feature-card" onclick="goNav('compound',2)" data-tip="計算複利本金累積效益">
+          <div class="fc-num">02</div>
+          <div style="flex:1"><div class="fc-label">Compound Growth</div><div class="fc-title">複利雪球效益試算</div></div>
+          <div class="fc-val">10%</div>
+        </div>
+        <div class="feature-card" onclick="goNav('loan',3)" data-tip="計算保單可貸金額與月息">
+          <div class="fc-num">03</div>
+          <div style="flex:1"><div class="fc-label">Policy Loan</div><div class="fc-title">保單貸款利差試算</div></div>
+          <div class="fc-val">+11.5%</div>
+        </div>
+        <div class="feature-card" onclick="goNav('perf',4)" data-tip="查看實戰案例績效數據">
+          <div class="fc-num">04</div>
+          <div style="flex:1"><div class="fc-label">Live Performance</div><div class="fc-title">實戰案例績效總覽</div></div>
+          <div class="fc-val">+57%</div>
+        </div>
+        <div class="feature-card" onclick="goNav('report',5)" data-tip="整合七年完整財務報表">
+          <div class="fc-num">05</div>
+          <div style="flex:1"><div class="fc-label">7-Year Plan</div><div class="fc-title">七年完整財務報表</div></div>
+          <div class="fc-val">×1.95</div>
+        </div>
+      </div>
+      <div class="right-bottom"><div class="right-bottom-quote">進可攻，退可守<br>讓資產為您工作</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 2: DEFENSE ══════════ -->
+<div class="section" id="sec-defense">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <div class="sec-eyebrow"><div class="sec-eyebrow-line"></div><div class="sec-eyebrow-text">Monthly Dividend Defense Layer</div></div>
+      <div class="sec-title">月配息防守層試算</div>
+      <div class="sec-sub">輸入本金，即時計算各基金月配息金額</div>
+    </div>
+    <div class="h-rule"></div>
+    <div class="fund-selector" id="fund-tabs">
+      <div class="fund-tab on" onclick="setFund('both')" id="ft-both">
+        <div class="fund-tab-name">綜合配置（兩檔並用）</div>
+        <div class="fund-rate">15<span style="font-size:.9rem;opacity:.4">%</span></div>
+        <div class="fund-tab-sub">年化綜效</div>
+      </div>
+      <div class="fund-tab" onclick="setFund('allianz')" id="ft-allianz">
+        <div class="fund-tab-name">安聯收益成長</div>
+        <div class="fund-rate">8<span style="font-size:.9rem;opacity:.4">%</span></div>
+        <div class="fund-tab-sub">月配息年化</div>
+      </div>
+      <div class="fund-tab" onclick="setFund('eastspring')" id="ft-eastspring">
+        <div class="fund-tab-name">瀚亞科技基金</div>
+        <div class="fund-rate">7<span style="font-size:.9rem;opacity:.4">%</span></div>
+        <div class="fund-tab-sub">月配息年化</div>
+      </div>
+    </div>
+    <div class="calc-wrap" style="margin-top:2px">
+      <div class="panel">
+        <div class="panel-title">輸入本金與配置比例</div>
+        <div class="field">
+          <label class="field-label">本金（萬元 TWD）</label>
+          <div class="field-row"><div class="field-pfx">萬 TWD</div><input type="number" id="def-capital" value="300" min="10" max="50000" step="10" oninput="calcDefense()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setDC(100)">100萬</button>
+            <button class="qbtn on" onclick="setDC(300)">300萬</button>
+            <button class="qbtn" onclick="setDC(600)">600萬</button>
+            <button class="qbtn" onclick="setDC(1000)">1,000萬</button>
+            <button class="qbtn" onclick="setDC(3000)">3,000萬</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">配置至防守層比例</label>
+          <input type="range" id="def-pct" min="50" max="100" value="90" oninput="document.getElementById('def-pct-val').textContent=this.value+'%';calcDefense()">
+          <div class="range-meta"><span>50%</span><span id="def-pct-val">90%</span><span>100%</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">安聯收益成長 配置比例</label>
+          <input type="range" id="def-alloc" min="0" max="100" value="50" oninput="document.getElementById('def-alloc-val').textContent=this.value+'%';calcDefense()">
+          <div class="range-meta"><span>0% 全瀚亞</span><span id="def-alloc-val">50%</span><span>100% 全安聯</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">每月生活支出（元）</label>
+          <div class="field-row"><div class="field-pfx">NTD</div><input type="number" id="def-living" value="30000" min="0" max="300000" step="1000" oninput="calcDefense()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setDL(20000)">2萬</button>
+            <button class="qbtn on" onclick="setDL(30000)">3萬</button>
+            <button class="qbtn" onclick="setDL(50000)">5萬</button>
+            <button class="qbtn" onclick="setDL(80000)">8萬</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="res-main">
+          <div class="res-main-label">每月配息收入（稅前）</div>
+          <div class="res-big" id="def-monthly">— <span class="unit">元</span></div>
+          <div class="res-note" id="def-deploy-note">—</div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell"><div class="rc-lbl">安聯收益成長 月配息</div><div class="rc-val" id="def-allianz-mo">—</div><div class="rc-note">8% 年化 / 月配</div></div>
+          <div class="res-cell"><div class="rc-lbl">瀚亞科技 月配息</div><div class="rc-val" id="def-east-mo">—</div><div class="rc-note">7% 年化 / 月配</div></div>
+          <div class="res-cell"><div class="rc-lbl">月淨現金流</div><div class="rc-val pos" id="def-net">—</div><div class="rc-note">扣除生活支出後</div></div>
+          <div class="res-cell"><div class="rc-lbl">年化配息總額</div><div class="rc-val" id="def-annual">—</div><div class="rc-note">稅前估算</div></div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,.06);padding:22px;background:rgba(255,255,255,.01);margin-top:2px">
+          <div style="font-family:'Raleway',sans-serif;font-weight:300;font-size:.58rem;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:16px">月配息累積效益預覽</div>
+          <div class="def-bar-wrap" id="def-bars"></div>
+        </div>
+        <div style="margin-top:10px;text-align:right">
+          <button class="report-btn" onclick="goNav('compound',2)" style="font-size:.52rem;padding:10px 20px">複利雪球試算 →</button>
+          <button class="report-btn" onclick="goNav('loan',3)" style="font-size:.52rem;padding:10px 20px;margin-left:6px">帶入保單貸款 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 3: COMPOUND ══════════ -->
+<div class="section" id="sec-compound">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <div class="sec-eyebrow"><div class="sec-eyebrow-line"></div><div class="sec-eyebrow-text">Compound Snowball Growth</div></div>
+      <div class="sec-title">複利雪球試算</div>
+      <div class="sec-sub">進攻層本金累積效益計算</div>
+    </div>
+    <div class="h-rule"></div>
+    <div class="calc-wrap">
+      <div class="panel">
+        <div class="panel-title">設定進攻層條件</div>
+        <div class="field">
+          <label class="field-label">本金（萬元 TWD）</label>
+          <div class="field-row"><div class="field-pfx">萬 TWD</div><input type="number" id="cmp-capital" value="300" min="10" max="50000" step="10" oninput="calcCompound()"></div>
+          <div class="qbtns">
+            <button class="qbtn" onclick="setCC(100)">100萬</button>
+            <button class="qbtn on" onclick="setCC(300)">300萬</button>
+            <button class="qbtn" onclick="setCC(600)">600萬</button>
+            <button class="qbtn" onclick="setCC(1000)">1,000萬</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">進攻層配置比例（佔本金）</label>
+          <input type="range" id="cmp-pct" min="5" max="50" value="10" oninput="document.getElementById('cmp-pct-val').textContent=this.value+'%';calcCompound()">
+          <div class="range-meta"><span>5%</span><span id="cmp-pct-val">10%</span><span>50%</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">預估年化報酬率</label>
+          <input type="range" id="cmp-rate" min="5" max="25" value="10" oninput="document.getElementById('cmp-rate-val').textContent=this.value+'%';calcCompound()">
+          <div class="range-meta"><span>5%</span><span id="cmp-rate-val">10%</span><span>25%</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">年度追加投入（萬元，可為0）</label>
+          <div class="field-row"><div class="field-pfx">萬 TWD</div><input type="number" id="cmp-add" value="0" min="0" max="500" step="5" oninput="calcCompound()"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">試算年限</label>
+          <div class="tbtns" id="cmp-yr-btns">
+            <button class="tbtn" onclick="setCmpYr(5)">5年</button>
+            <button class="tbtn on" onclick="setCmpYr(7)">7年</button>
+            <button class="tbtn" onclick="setCmpYr(10)">10年</button>
+            <button class="tbtn" onclick="setCmpYr(15)">15年</button>
+            <button class="tbtn" onclick="setCmpYr(20)">20年</button>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="report-btn" onclick="syncCompoundFromDefense()" style="font-size:.52rem;padding:10px 20px;width:100%">← 從防守層帶入本金</button>
+        </div>
+      </div>
+      <div>
+        <div class="res-main">
+          <div class="res-main-label">目標年末本金總值</div>
+          <div class="res-big" id="cmp-final">— <span class="unit">萬</span></div>
+          <div class="res-note" id="cmp-note">—</div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell"><div class="rc-lbl">進攻層初始本金</div><div class="rc-val" id="cmp-init">—</div><div class="rc-note">萬元</div></div>
+          <div class="res-cell"><div class="rc-lbl">總增值金額</div><div class="rc-val pos" id="cmp-gain">—</div><div class="rc-note">萬元</div></div>
+          <div class="res-cell"><div class="rc-lbl">倍數</div><div class="rc-val" id="cmp-mult">—</div><div class="rc-note">相對初始本金</div></div>
+          <div class="res-cell"><div class="rc-lbl">年化報酬率</div><div class="rc-val" id="cmp-rate-show">—</div><div class="rc-note">複利計算</div></div>
+        </div>
+        <div class="compound-chart">
+          <div class="cc-title">年度本金累積圖</div>
+          <div class="cc-bars" id="cmp-chart"></div>
+        </div>
+        <div style="margin-top:10px;text-align:right">
+          <button class="report-btn" onclick="goNav('report',5)" style="font-size:.52rem;padding:10px 20px">整合七年報表 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 4: POLICY LOAN ══════════ -->
+<div class="section" id="sec-loan">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <div class="sec-eyebrow"><div class="sec-eyebrow-line"></div><div class="sec-eyebrow-text">Policy Loan Calculator</div></div>
+      <div class="sec-title">保單貸款試算</div>
+      <div class="sec-sub">選擇保險公司 · 計算可貸金額 · 月息試算</div>
+    </div>
+    <div class="h-rule"></div>
