@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>富得財富 · Eddie Lin | 現金流資產配置系統</title>
+<style>
+/* ==================== ROOT VARIABLES ==================== */
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-dark: #A07830;
+  --dark: #0A0E1A;
+  --dark-2: #111827;
+  --dark-3: #1C2333;
+  --dark-4: #243044;
+  --text: #F0EDE8;
+  --text-muted: #9CA3AF;
+  --green: #10B981;
+  --blue: #3B82F6;
+  --purple: #8B5CF6;
+  --red: #EF4444;
+  --border: rgba(201,168,76,0.2);
+  --shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ==================== RESET & BASE ==================== */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ==================== SCROLLBAR ==================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-2); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+/* ==================== NAVIGATION ==================== */
+.navbar {
+  position: fixed; top:0; left:0; right:0; z-index:1000;
+  background: rgba(10,14,26,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 12px;
+}
+.nav-logo {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; color: var(--dark);
+}
+.nav-title { font-size: 16px; font-weight: 700; color: var(--gold); }
+.nav-sub { font-size: 11px; color: var(--text-muted); }
+.nav-links {
+  display: flex; gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0A0E1A 0%, #111827 50%, #0A0E1A 100%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding-top: 64px;
+}
+.hero::before {
+  content:'';
+  position: absolute; inset:0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 20%, rgba(59,130,246,0.05) 0%, transparent 50%);
+}
+.hero-grid {
+  position: absolute; inset:0; opacity:0.03;
+  background-image: linear-gradient(var(--gold) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--gold) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-content {
+  position: relative; z-index:1;
+  text-align: center; max-width: 900px; padding: 2rem;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid var(--border);
+  border-radius: 50px; padding: 8px 20px;
+  font-size: 13px; color: var(--gold);
+  margin-bottom: 2rem;
+}
+.hero-badge::before { content:'◆'; font-size:8px; }
+.hero-h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.hero-h1 span {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--text-muted); margin-bottom: 3rem;
+  max-width: 600px; margin-left: auto; margin-right: auto;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 3rem;
+  margin-bottom: 3rem; flex-wrap: wrap;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-size: 2.5rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn {
+  padding: 14px 32px; border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; border: none;
+  transition: all 0.3s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--dark);
+  box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.5); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.05); }
+
+/* ==================== SECTIONS ==================== */
+.section {
+  padding: 80px 2rem;
+  max-width: 1200px; margin: 0 auto;
+}
+.section-full { padding: 80px 0; }
+.section-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+.section-title {
+  text-align: center; margin-bottom: 3rem;
+}
+.section-title h2 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 900; margin-bottom: 0.5rem;
+}
+.section-title h2 span {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.section-title p { color: var(--text-muted); font-size: 15px; }
+.divider {
+  width: 60px; height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  margin: 1rem auto;
+  border-radius: 2px;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  background: var(--dark-2);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  transition: all 0.3s;
+}
+.card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow); }
+.card-icon {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 1rem;
+}
+.card-icon.gold { background: rgba(201,168,76,0.15); }
+.card-icon.green { background: rgba(16,185,129,0.15); }
+.card-icon.blue { background: rgba(59,130,246,0.15); }
+.card-icon.purple { background: rgba(139,92,246,0.15); }
+.card h3 { font-size: 18px; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold); }
+.card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+/* ==================== GRID LAYOUTS ==================== */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+
+/* ==================== KPI BOXES ==================== */
+.kpi-box {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem;
+  text-align: center; position: relative; overflow: hidden;
+}
+.kpi-box::before {
+  content:''; position: absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+}
+.kpi-num {
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.kpi-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.kpi-sub { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+/* ==================== MODEL SECTION ==================== */
+.model-bg {
+  background: linear-gradient(135deg, var(--dark-2) 0%, var(--dark-3) 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.model-diagram {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 2.5rem;
+  margin-bottom: 2rem;
+}
+.model-flow {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;
+}
+.flow-node {
+  background: var(--dark-4);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.5rem;
+  text-align: center; min-width: 140px;
+}
+.flow-node.highlight {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.1);
+}
+.flow-node-icon { font-size: 28px; margin-bottom: 6px; }
+.flow-node-title { font-size: 13px; font-weight: 700; color: var(--gold); }
+.flow-node-val { font-size: 18px; font-weight: 900; margin-top: 4px; }
+.flow-arrow {
+  font-size: 24px; color: var(--gold); font-weight: 900;
+}
+
+/* ==================== CALCULATOR SECTION ==================== */
+.calc-tabs {
+  display: flex; gap: 8px; margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+  flex-wrap: wrap;
+}
+.calc-tab {
+  padding: 10px 20px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer; font-size: 14px; font-weight: 600;
+  transition: all 0.2s;
+  position: relative; bottom: -1px;
+}
+.calc-tab.active {
+  background: var(--dark-3);
+  border-color: var(--border);
+  border-bottom-color: var(--dark-3);
+  color: var(--gold);
+}
+.calc-panel { display: none; }
+.calc-panel.active { display: block; }
+.calc-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+}
+@media (max-width: 768px) { .calc-grid { grid-template-columns: 1fr; } }
+.input-group { margin-bottom: 1.2rem; }
+.input-group label {
+  display: block; font-size: 13px;
+  color: var(--text-muted); margin-bottom: 6px; font-weight: 600;
+}
+.input-group input, .input-group select {
+  width: 100%; padding: 10px 14px;
+  background: var(--dark-4);
+  border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-size: 14px; transition: border-color 0.2s;
+  outline: none;
+}
+.input-group input:focus, .input-group select:focus { border-color: var(--gold); }
+.input-group select option { background: var(--dark-3); }
+.calc-result {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem;
+}
+.result-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.result-row:last-child { border-bottom: none; }
+.result-label { font-size: 13px; color: var(--text-muted); }
+.result-val { font-size: 16px; font-weight: 700; }
+.result-val.gold { color: var(--gold); }
+.result-val.green { color: var(--green); }
+.result-val.blue { color: var(--blue); }
+.result-val.red { color: var(--red); }
+.calc-btn {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--dark); border: none; border-radius: 8px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: all 0.3s; margin-top: 1rem;
+}
+.calc-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ==================== TABLE ==================== */
+.table-wrap { overflow-x: auto; border-radius: 12px; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  background: var(--dark-3);
+  padding: 12px 16px; text-align: left;
+  color: var(--gold); font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+}
+tr:hover td { background: rgba(201,168,76,0.03); }
+tr:last-child td { border-bottom: none; }
+.tag {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 50px; font-size: 11px; font-weight: 700;
+}
+.tag-green { background: rgba(16,185,129,0.15); color: var(--green); }
+.tag-gold { background: rgba(201,168,76,0.15); color: var(--gold); }
+.tag-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+/* ==================== CASES SECTION ==================== */
+.case-card {
+  background: var(--dark-2);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+.case-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+.case-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+}
+.case-card.c1::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+.case-card.c2::before { background: linear-gradient(90deg, var(--green), #34D399); }
+.case-card.c3::before { background: linear-gradient(90deg, var(--blue), #60A5FA); }
+.case-card.c4::before { background: linear-gradient(90deg, var(--purple), #A78BFA); }
+.case-card.c5::before { background: linear-gradient(90deg, #F59E0B, #FCD34D); }
+.case-num {
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+}
+.case-title { font-size: 17px; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold); }
+.case-client { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
+.case-metric {
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.case-metric-label { font-size: 12px; color: var(--text-muted); }
+.case-details { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.case-detail-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; padding: 4px 0; color: var(--text-muted);
+}
+.case-detail-row span:last-child { color: var(--text); font-weight: 600; }
+
+/* ==================== REPORT SECTION ==================== */
+.report-timeline {
+  position: relative; padding-left: 2rem;
+}
+.report-timeline::before {
+  content:''; position: absolute; left: 8px; top:0; bottom:0;
+  width: 2px; background: linear-gradient(180deg, var(--gold), var(--gold-dark), transparent);
+}
+.timeline-item {
+  position: relative; margin-bottom: 1.5rem;
+  padding: 1.5rem; background: var(--dark-3);
+  border: 1px solid var(--border); border-radius: 12px;
+}
+.timeline-item::before {
+  content:''; position: absolute; left: -28px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold); border: 3px solid var(--dark);
+  box-shadow: 0 0 10px rgba(201,168,76,0.5);
+}
+.timeline-year {
+  font-size: 12px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+}
+.timeline-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.timeline-vals {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+}
+.timeline-val { text-align: center; }
+.timeline-val-num { font-size: 1.3rem; font-weight: 700; color: var(--green); }
+.timeline-val-label { font-size: 11px; color: var(--text-muted); }
+
+/* ==================== INSURER TABLE ==================== */
+.insurer-rate {
+  font-size: 1.2rem; font-weight: 700; color: var(--gold);
+}
+.spread-bar {
+  height: 6px; background: var(--dark-4);
+  border-radius: 3px; overflow: hidden; margin-top: 4px;
+}
+.spread-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--green), #34D399);
+  transition: width 0.5s ease;
+}
+
+/* ==================== PRINT STYLES ==================== */
+@media print {
+  .navbar, .hero-btns, .calc-tabs, .calc-btn { display: none !important; }
+  body { background: white; color: black; }
+  .section { padding: 20px; }
+  .card { border: 1px solid #ccc; box-shadow: none; }
+  .hero { min-height: auto; padding: 40px 20px; }
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+  background: var(--dark-2);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem; text-align: center;
+}
+.footer-logo {
+  font-size: 24px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+.footer-sub { color: var(--text-muted); font-size: 13px; margin-bottom: 1rem; }
+.footer-contact {
+  display: flex; justify-content: center; gap: 2rem;
+  flex-wrap: wrap; font-size: 13px; color: var(--text-muted);
+}
+.footer-contact span { display: flex; align-items: center; gap: 6px; }
+.footer-copy { margin-top: 2rem; font-size: 12px; color: var(--text-muted); opacity: 0.5; }
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero-stats { gap: 1.5rem; }
+  .model-flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(30px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.7s ease both; }
+.fade-in-2 { animation: fadeInUp 0.7s ease 0.2s both; }
+.fade-in-3 { animation: fadeInUp 0.7s ease 0.4s both; }
+
+/* ==================== HIGHLIGHT BOX ==================== */
+.highlight-box {
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 12px; padding: 1.5rem;
+  margin: 1rem 0;
+}
+.highlight-box h4 { color: var(--gold); margin-bottom: 0.5rem; }
+.highlight-box p { font-size: 14px; color: var(--text-muted); }
+
+/* ==================== PROGRESS BAR ==================== */
+.progress-wrap { margin: 8px 0; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--text-muted); margin-bottom: 4px;
+}
+.progress-bar {
+  height: 8px; background: var(--dark-4);
+  border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== NAVBAR ==================== -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">富</div>
+    <div>
+      <div class="nav-title">富得財富管理</div>
+      <div class="nav-sub">Eddie Lin · Asset Consultant Manager</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#hero" class="active">首頁</a></li>
+    <li><a href="#model">資產模型</a></li>
+    <li><a href="#calculator">計算器</a></li>
+    <li><a href="#insurers">保險公司</a></li>
+    <li><a href="#cases">成功案例</a></li>
+    <li><a href="#report">七年報告</a></li>
+  </ul>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-in">富得現金流資產配置系統 v3.0</div>
+    <h1 class="hero-h1 fade-in-2">
+      讓資產<span>自動工作</span><br>為你創造現金流
+    </h1>
+    <p class="hero-sub fade-in-3">
+      6.2M 戰略模型 · 月月領息 · 政策貸款套利<br>
+      Eddie Lin 為你打造專屬財富增長方程式
+    </p>
+    <div class="hero-stats fade-in">
+      <div class="hero-stat">
+        <div class="hero-stat-num">6.2M</div>
+        <div class="hero-stat-label">戰略資產規模 (TWD)</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">+57.9%</div>
+        <div class="hero-stat-label">最高資產成長率</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">125萬</div>
+        <div class="hero-stat-label">年度股息紀錄 (TWD)</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">7年</div>
+        <div class="hero-stat-label">整合財務規劃期</div>
+      </div>
+    </div>
+    <div class="hero-btns">
+      <a href="#calculator" class="btn btn-gold">🧮 立即試算</a>
+      <a href="#model" class="btn btn-outline">📊 查看模型</a>
+      <a onclick="window.print()" class="btn btn-outline" style="cursor:pointer">🖨️ 列印報告</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== KPI OVERVIEW ==================== -->
+<section class="section" id="kpi">
+  <div class="section-title">
+    <h2>核心<span>績效指標</span></h2>
+    <div class="divider"></div>
+    <p>即時監控 · 動態追蹤 · 數據驅動決策</p>
+  </div>
+  <div class="grid-4">
+    <div class="kpi-box">
+      <div class="kpi-num">4,000,000</div>
+      <div class="kpi-label">本金規模 (TWD)</div>
+      <div class="kpi-sub">↑ 防禦層核心資產</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">2,200,000</div>
+      <div class="kpi-label">保單借款 (TWD)</div>
+      <div class="kpi-sub">↑ 最高90%借貸比</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">+11.5%</div>
+      <div class="kpi-label">最大利差空間</div>
+      <div class="kpi-sub">↑ 套利收益</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">8%</div>
+      <div class="kpi-label">最高月配息率</div>
+      <div class="kpi-sub">↑ 安聯月月配</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ASSET MODEL ==================== -->
+<section class="section-full model-bg" id="model">
+  <div class="section-inner">
+    <div class="section-title">
+      <h2>6.2M <span>戰略資產模型</span></h2>
+      <div class="divider"></div>
+      <p>防禦層 + 攻擊層 雙引擎驅動 · 保單貸款套利加速</p>
+    </div>
+
+    <div class="model-diagram">
+      <div class="model-flow">
+        <div class="flow-node highlight">
+          <div class="flow-node-icon">💰</div>
+          <div class="flow-node-title">本金投入</div>
+          <div class="flow-node-val" style="color:var(--gold)">400萬</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🛡️</div>
+          <div class="flow-node-title">防禦層</div>
+          <div class="flow-node-val" style="color:var(--green)">月月配息</div>
+        </div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">⚡</div>
+          <div class="flow-node-title">攻擊層</div>
+          <div class="flow-node-val" style="color:var(--blue)">複利滾雪球</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node highlight">
+          <div class="flow-node-icon">📈</div>
+          <div class="flow-node-title">保單借款</div>
+          <div class="flow-node-val" style="color:var(--purple)">+220萬</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node highlight">
+          <div class="flow-node-icon">🏆</div>
+          <div class="flow-node-title">總規模</div>
+          <div class="flow-node-val" style="color:var(--gold)">620萬</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:2rem">
+        <div class="card">
+          <div class="card-icon gold">🛡️</div>
+          <h3>防禦層 — 月月領息</h3>
+          <p>配置安聯月月配(8%年化)與東方匯理(7%年化)，每月穩定產生現金流，作為生活費用基礎保障。</p>
+          <div style="margin-top:1rem">
+            <div class="progress-wrap">
+              <div class="progress-label"><span>安聯月月配</span><span style="color:var(--gold)">8% 年化</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>東方匯理</span><span style="color:var(--gold)">7% 年化</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon blue">⚡</div>
+          <h3>攻擊層 — 複利滾雪球</h3>
+          <p>透過再投資複利效應，將股息收益持續累積，7年期間資產可實現指數型成長，達到財富自由里程碑。</p>
+          <div class="highlight-box" style="margin-top:1rem">
+            <h4>💡 複利魔法</h4>
+            <p>年化8%，10年後每100萬本金成長為<strong style="color:var(--gold)">215.9萬</strong>，翻倍以上！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CALCULATOR ==================== -->
+<section class="section" id="calculator">
+  <div class="section-title">
+    <h2>智慧<span>財務計算器</span></h2>
+    <div class="divider"></div>
+    <p>三大模組 · 即時試算 · 精準規劃</p>
+  </div>
+
+  <div class="calc-tabs">
+    <button class="calc-tab active" onclick="switchTab('tab-dividend', this)">🛡️ 月配息計算</button>
+    <button class="calc-tab" onclick="switchTab('tab-compound', this)">⚡ 複利滾雪球</button>
+    <button class="calc-tab" onclick="switchTab('tab-loan', this)">🏦 保單借款試算</button>
+  </div>
+
+  <!-- 月配息 -->
+  <div class="calc-panel active" id="tab-dividend">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>投入本金 (TWD)</label>
+          <input type="number" id="div-principal" value="4000000" min="0">
+        </div>
+        <div class="input-group">
+          <label>安聯月月配 配比 (%)</label>
+          <input type="number" id="div-allianz-pct" value="50" min="0" max="100">
+        </div>
+        <div class="input-group">
+          <label>東方匯理 配比 (%)</label>
+          <input type="number" id="div-east-pct" value="50" min="0" max="100">
+        </div>
+        <div class="input-group">
+          <label>安聯年化配息率 (%)</label>
+          <input type="number" id="div-allianz-rate" value="8" min="0" max="20" step="0.1">
+        </div>
+        <div class="input-group">
+          <label>東方匯理年化配息率 (%)</label>
+          <input type="number" id="div-east-rate" value="7" min="0" max="20" step="0.1">
+        </div>
+        <button class="calc-btn" onclick="calcDividend()">🔢 立即試算</button>
+      </div>
+      <div class="calc-result" id="div-result">
+        <div style="text-align:center;color:var(--text-muted);padding:2rem">點擊試算查看結果</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 複利 -->
+  <div class="calc-panel" id="tab-compound">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>初始本金 (TWD)</label>
+          <input type="number" id="cmp-principal" value="6200000" min="0">
+        </div>
+        <div class="input-group">
+          <label>年化報酬率 (%)</label>
+          <input type="number" id="cmp-rate" value="8" min="0" max="50" step="0.1">
+        </div>
+        <div class="input-group">
+          <label>投資年期 (年)</label>
+          <input type="number" id="cmp-years" value="7" min="1" max="30">
+        </div>
+        <div class="input-group">
+          <label>每年追加投入 (TWD)</label>
+          <input type="number" id="cmp-annual" value="0" min="0">
+        </div>
+        <button class="calc-btn" onclick="calcCompound()">🔢 立即試算</button>
+      </div>
+      <div class="calc-result" id="cmp-result">
+        <div style="text-align:center;color:var(--text-muted);padding:2rem">點擊試算查看結果</div>
+      </div>
+    </div>
+    <div id="cmp-table" style="margin-top:2rem"></div>
+  </div>
+
+  <!-- 保單借款 -->
+  <div class="calc-panel" id="tab-loan">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>保單現金價值 (TWD)</label>
+          <input type="number" id="loan-csv" value="4000000" min="0">
+        </div>
+        <div class="input-group">
+          <label>選擇保險公司</label>
+          <select id="loan-insurer" onchange="updateLoanRate()">
+            <option value="3.25">富邦人壽 (3.25%)</option>
+            <option value="3.50">國泰人壽 (3.50%)</option>
+            <option value="3.75">南山人壽 (3.75%)</option>
+            <option value="3.00">中國人壽 (3.00%)</option>
+            <option value="3.25">台灣人壽 (3.25%)</option>
+            <option value="3.50">新光人壽 (3.50%)</option>
+            <option value="3.25">遠雄人壽 (3.25%)</option>
+            <option value="3.75">三商美邦 (3.75%)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>借款利率 (%)</label>
+          <input type="number" id="loan-rate" value="3.25" min="0" max="10" step="0.01">
+        </div>
+        <div class="input-group">
+          <label>借款比例 (%, 最高90%)</label>
+          <input type="number" id="loan-pct" value="55" min="1" max="90">
+        </div>
+        <div class="input-group">
+          <label>投資標的年化報酬率 (%)</label>
+          <input type="number" id="loan-invest-rate" value="8" min="0" max="20" step="0.1">
+        </div>
+        <button class="calc-btn" onclick="calcLoan()">🔢 立即試算</button>
+      </div>
+      <div class="calc-result" id="loan-result">
+        <div style="text-align:center;color:var(--text-muted);padding:2rem">點擊試算查看結果</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== INSURER DATABASE ==================== -->
+<section class="section-full" id="insurers" style="background:var(--dark-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 0">
+  <div class="section-inner">
+    <div class="section-title">
+      <h2>保險公司<span>利率資料庫</span></h2>
+      <div class="divider"></div>
+      <p>8大主要壽險公司 · 保單借款利率即時比較</p>
+    </div>
+    <div class="table-wrap">
+      <table id="insurer-table">
+        <thead>
+          <tr>
+            <th>保險公司</th>
+            <th>借款利率</th>
+            <th>最高借款比例</th>
+            <th>月利息 (以400萬×55%計)</th>
+            <th>投資報酬率(8%)</th>
+            <th>月淨利差</th>
+            <th>年化利差</th>
+            <th>評級</th>
+          </tr>
+        </thead>
+        <tbody id="insurer-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SUCCESS CASES ==================== -->
+<section class="section" id="cases">
+  <div class="section-title">
+    <h2>真實<span>成功案例</span></h2>
+    <div class="divider"></div>
+    <p>5大實績案例 · 數據見證財富成長的力量</p>
+  </div>
+  <div class="grid-3" id="cases-grid"></div>
+</section>
+
+<!-- ==================== 7-YEAR REPORT ==================== -->
+<section class="section-full" id="report" style="background:var(--dark-2);border-top:1px solid var(--border);padding:80px 0">
+  <div class="section-inner">
+    <div class="section-title">
+      <h2>七年<span>整合財務報告</span></h2>
+      <div class="divider"></div>
+      <p>逐年追蹤 · 現金流累積 · 資產成長藍圖</p>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:3rem">
+      <div class="kpi-box">
+        <div class="kpi-num" id="r-total-asset">—</div>
+        <div class="kpi-label">7年後總資產</div>
+        <div class="kpi-sub">複利成長</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-num" id="r-total-div">—</div>
+        <div class="kpi-label">7年累積股息</div>
+        <div class="kpi-sub">現金流收入</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-num" id="r-total-spread">—</div>
+        <div class="kpi-label">7年套利收益</div>
+        <div class="kpi-sub">利差收入</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-num" id="r-roi">—</div>
+        <div class="kpi-label">7年總報酬率</div>
+        <div class="kpi-sub">含借款套利</div>
+      </div>
+    </div>
+
+    <div class="report-timeline" id="report-timeline"></div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="footer-logo">富得財富管理</div>
+  <div class="footer-sub">Fude Wealth Management · 現金流資產配置系統</div>
+  <div class="footer-contact">
+    <span>👤 Eddie Lin</span>
+    <span>💼 Asset Consultant Manager</span>
+    <span>📊 富得現金流資產配置專案</span>
+  </div>
+  <div class="footer-copy">
+    © 2024 富得財富管理 Fude Wealth · 本系統僅供參考，投資有風險，請謹慎評估
+  </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ===== STATE =====
+const STATE = {
+  principal: 4000000,
+  loanAmount: 2200000,
+  totalAsset: 6200000,
+  allianzRate: 0.08,
+  eastRate: 0.07,
+  loanRate: 0.0325
+};
+
+// ===== INSURERS DATA =====
+const INSURERS = [
+  { name:'富邦人壽', rate:3.25, maxPct:90, rating:'AAA' },
+  { name:'國泰人壽', rate:3.50, maxPct:90, rating:'AAA' },
+  { name:'南山人壽', rate:3.75, maxPct:85, rating:'AA+' },
+  { name:'中國人壽', rate:3.00, maxPct:90, rating:'AA'  },
+  { name:'台灣人壽', rate:3.25, maxPct:80, rating:'AA'  },
+  { name:'新光人壽', rate:3.50, maxPct:85, rating:'AA-' },
+  { name:'遠雄人壽', rate:3.25, maxPct:80, rating:'A+'  },
+  { name:'三商美邦', rate:3.75, maxPct:80, rating:'A'   }
+];
+
+// ===== CASES DATA =====
+const CASES = [
+  {
+    cls:'c1', num:'CASE 01', title:'複利滾雪球大師',
+    client:'台北科技業主管 · 45歲',
+    metric:'+57.94%', metricLabel:'5年資產成長率',
+    details:[
+      ['初始投入','600萬 TWD'],['投資年期','5年'],
+      ['年化報酬','8%'],['最終資產','946萬 TWD'],
+      ['累積股息','約240萬 TWD'],['借款套利','含保單借款']
+    ]
+  },
+  {
+    cls:'c2', num:'CASE 02', title:'月月領息生活家',
+    client:'新竹竹科工程師 · 38歲',
+    metric:'125萬', metricLabel:'年度股息收入 (TWD)',
+    details:[
+      ['本金規模','1,500萬 TWD'],['安聯配比','60%'],
+      ['東方匯理','40%'],['月均收益','約10.4萬'],
+      ['年化均率','8.3%'],['現金流狀態','財務自由']
+    ]
+  },
+  {
+    cls:'c3', num:'CASE 03', title:'保單借款套利王',
+    client:'台中企業家 · 52歲',
+    metric:'+11.5%', metricLabel:'年化淨利差',
+    details:[
+      ['保單現值','800萬 TWD'],['借款金額','720萬'],
+      ['借款利率','3.25%'],['投資報酬','14.75%'],
+      ['月套利金','約69,000'],['年套利金','約828,000']
+    ]
+  },
+  {
+    cls:'c4', num:'CASE 04', title:'七年財富自由計畫',
+    client:'高雄醫師 · 35歲',
+    metric:'2,187萬', metricLabel:'7年後預估總資產 (TWD)',
+    details:[
+      ['初始投入','1,000萬 TWD'],['保單借款','900萬'],
+      ['年均報酬','10%'],['7年股息','約1,400萬'],
+      ['淨資產成長','年均+12.3%'],['財富自由年齡','42歲']
+    ]
+  },
+  {
+    cls:'c5', num:'CASE 05', title:'退休現金流規劃',
+    client:'退休公務員夫婦 · 60歲',
+    metric:'每月8.5萬', metricLabel:'穩定現金流收入',
+    details:[
+      ['退休資產','1,200萬 TWD'],['配置比例','防守100%'],
+      ['月配息率','年化8.5%'],['保障期間','20年+'],
+      ['通膨對抗','持續再投資'],['安全等級','最高保守型']
+    ]
+  }
+];
+
+// ===== FORMAT NUMBER =====
+function fmt(n, decimals=0) {
+  if (n >= 10000000) return (n/10000000).toFixed(1) + '億';
+  if (n >= 10000) return Math.round(n/10000) + '萬';
+  return n.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function fmtTWD(n) {
+  return 'TWD ' + Math.round(n).toLocaleString();
+}
+
+// ===== TABS =====
+function switchTab(id, btn) {
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.calc-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== DIVIDEND CALCULATOR =====
+function calcDividend() {
+  const p = parseFloat(document.getElementById('div-principal').value)||0;
+  const aPct = parseFloat(document.getElementById('div-allianz-pct').value)||0;
+  const ePct = parseFloat(document.getElementById('div-east-pct').value)||0;
+  const aRate = parseFloat(document.getElementById('div-allianz-rate').value)||0;
+  const eRate = parseFloat(document.getElementById('div-east-rate').value)||0;
+
+  const aP = p * aPct/100;
+  const eP = p * ePct/100;
+  const aMonthly = aP * aRate/100/12;
+  const eMonthly = eP * eRate/100/12;
+  const totalMonthly = aMonthly + eMonthly;
+  const totalAnnual = totalMonthly * 12;
+  const blendRate = (aPct*aRate + ePct*eRate)/100;
+
+  document.getElementById('div-result').innerHTML = `
+    <div class="result-row"><span class="result-label">安聯配置金額</span><span class="result-val gold">${fmtTWD(aP)}</span></div>
+    <div class="result-row"><span class="result-label">安聯月配息</span><span class="result-val green">${fmtTWD(aMonthly)}</span></div>
+    <div class="result-row"><span class="result-label">東方匯理配置金額</span><span class="result-val gold">${fmtTWD(eP)}</span></div>
+    <div class="result-row"><span class="result-label">東方匯理月配息</span><span class="result-val green">${fmtTWD(eMonthly)}</span></div>
+    <div class="result-row" style="border-top:2px solid var(--gold);margin-top:8px;padding-top:12px">
+      <span class="result-label" style="font-weight:700;color:var(--text)">每月總收息</span>
+      <span class="result-val gold" style="font-size:1.5rem">${fmtTWD(totalMonthly)}</span>
+    </div>
+    <div class="result-row"><span class="result-label">每年總配息</span><span class="result-val green">${fmtTWD(totalAnnual)}</span></div>
+    <div class="result-row"><span class="result-label">綜合年化率</span><span class="result-val blue">${blendRate.toFixed(2)}%</span></div>
+  `;
+}
+
+// ===== COMPOUND CALCULATOR =====
+function calcCompound() {
+  const p = parseFloat(document.getElementById('cmp-principal').value)||0;
+  const r = parseFloat(document.getElementById('cmp-rate').value)||0;
+  const y = parseInt(document.getElementById('cmp-years').value)||1;
+  const ann = parseFloat(document.getElementById('cmp-annual').value)||0;
+
+  let rows = '';
+  let total = p;
+  let cumDiv = 0;
+  for (let i=1; i<=y; i++) {
+    const interest = total * r/100;
+    total = total + interest + ann;
+    cumDiv += interest;
+    rows += `<tr>
+      <td>第${i}年</td>
+      <td style="color:var(--green)">${fmtTWD(interest)}</td>
+      <td>${ann>0?fmtTWD(ann):'—'}</td>
+      <td style="color:var(--gold);font-weight:700">${fmtTWD(total)}</td>
+      <td style="color:var(--green)">${(((total-p)/p)*100).toFixed(1)}%</td>
+    </tr>`;
+  }
+
+  const growthPct = ((total-p)/p*100).toFixed(2);
+  document.getElementById('cmp-result').innerHTML = `
+    <div class="result-row"><span class="result-label">初始本金</span><span class="result-val gold">${fmtTWD(p)}</span></div>
+    <div class="result-row"><span class="result-label">年化報酬率</span><span class="result-val blue">${r}%</span></div>
+    <div class="result-row"><span class="result-label">累積收益</span><span class="result-val green">${fmtTWD(cumDiv)}</span></div>
+    <div class="result-row" style="border-top:2px solid var(--gold);margin-top:8px;padding-top:12px">
+      <span class="result-label" style="font-weight:700;color:var(--text)">${y}年後總資產</span>
+      <span class="result-val gold" style="font-size:1.5rem">${fmtTWD(total)}</span>
+    </div>
+    <div class="result-row"><span class="result-label">總成長率</span><span class="result-val green">+${growthPct}%</span></div>
+    <div class="result-row"><span class="result-label">資產倍數</span><span class="result-val blue">${(total/p).toFixed(2)}x</span></div>
+  `;
+
+  document.getElementById('cmp-table').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>年度</th><th>當年收益</th><th>追加投入</th><th>期末總資產</th><th>累積成長率</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ===== LOAN CALCULATOR =====
+function updateLoanRate() {
+  const sel = document.getElementById('loan-insurer');
+  document.getElementById('loan-rate').value = sel.value;
+}
+
+function calcLoan() {
+  const csv = parseFloat(document.getElementById('loan-csv').value)||0;
+  const rate = parseFloat(document.getElementById('loan-rate').value)||0;
+  const pct = parseFloat(document.getElementById('loan-pct').value)||0;
+  const investRate = parseFloat(document.getElementById('loan-invest-rate').value)||0;
+
+  const loanAmt = csv * Math.min(pct,90)/100;
+  const monthlyInterest = loanAmt * rate/100/12;
+  const annualInterest = loanAmt * rate/100;
+  const investReturn = loanAmt * investRate/100;
+  const netSpread = investRate - rate;
+  const netAnnual = investReturn - annualInterest;
+  const netMonthly = netAnnual/12;
+
+  const spreadColor = netSpread >= 0 ? 'green' : 'red';
+
+  document.getElementById('loan-result').innerHTML = `
+    <div class="result-row"><span class="result-label">保單現金價值</span><span class="result-val gold">${fmtTWD(csv)}</span></div>
+    <div class="result-row"><span class="result-label">可借金額 (${pct}%)</span><span class="result-val blue">${fmtTWD(loanAmt)}</span></div>
+    <div class="result-row"><span class="result-label">月付利息</span><span class="result-val red">${fmtTWD(monthlyInterest)}</span></div>
+    <div class="result-row"><span class="result-label">年付利息</span><span class="result-val red">${fmtTWD(annualInterest)}</span></div>
+    <div class="result-row"><span class="result-label">投資年收益</span><span class="result-val green">${fmtTWD(investReturn)}</span></div>
+    <div class="result-row" style="border-top:2px solid var(--gold);margin-top:8px;padding-top:12px">
+      <span class="result-label" style="font-weight:700;color:var(--text)">年化淨利差</span>
+      <span class="result-val ${spreadColor}" style="font-size:1.5rem">${netSpread>=0?'+':''}${netSpread.toFixed(2)}%</span>
+    </div>
+    <div class="result-row"><span class="result-label">月淨收益</span><span class="result-val ${spreadColor}">${fmtTWD(netMonthly)}</span></div>
+    <div class="result-row"><span class="result-label">年淨收益</span><span class="result-val ${spreadColor}">${fmtTWD(netAnnual)}</span></div>
+  `;
+}
+
+// ===== RENDER INSURERS TABLE =====
+function renderInsurers() {
+  const base = 4000000 * 0.55;
+  const investRate = 8;
+  const tbody = document.getElementById('insurer-tbody');
+  tbody.innerHTML = INSURERS.map(ins => {
+    const monthlyInt = base * ins.rate/100/12;
+    const monthlyInv = base * investRate/100/12;
+    const netMonthly = monthlyInv - monthlyInt;
+    const netAnnual = netMonthly * 12;
+    const spread = investRate - ins.rate;
+    const spreadPct = (spread/investRate*100).toFixed(0);
+    const ratingColor = ins.rating.startsWith('AAA')?'tag-green':ins.rating.startsWith('AA')?'tag-gold':'tag-blue';
+    return `<tr>
+      <td><strong>${ins.name}</strong></td>
+      <td><span class="insurer-rate">${ins.rate}%</span>
+        <div class="spread-bar"><div class="spread-fill" style="width:${spreadPct}%"></div></div>
+      </td>
+      <td>${ins.maxPct}%</td>
+      <td style="color:var(--red)">-${fmtTWD(monthlyInt)}</td>
+      <td style="color:var(--green)">+${fmtTWD(monthlyInv)}</td>
+      <td style="color:var(--green);font-weight:700">+${fmtTWD(netMonthly)}</td>
+      <td style="color:var(--gold);font-weight:700">+${spread.toFixed(2)}%</td>
+      <td><span class="tag ${ratingColor}">${ins.rating}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== RENDER CASES =====
+function renderCases() {
+  const grid = document.getElementById('cases-grid');
+  grid.innerHTML = CASES.map(c => `
+    <div class="case-card ${c.cls}">
+      <div class="case-num">${c.num}</div>
+      <div class="case-title">${c.title}</div>
+      <div class="case-client">👤 ${c.client}</div>
+      <div class="case-metric">${c.metric}</div>
+      <div class="case-metric-label">${c.metricLabel}</div>
+      <div class="case-details">
+        ${c.details.map(d=>`<div class="case-detail-row"><span>${d[0]}</span><span>${d[1]}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== RENDER 7-YEAR REPORT =====
+function renderReport() {
+  const p = STATE.totalAsset;
+  const r = 0.08;
+  const divRate = 0.075;
+  const loanAmt = STATE.loanAmount;
+  const loanRate = STATE.loanRate;
+  const spreadRate = r - loanRate;
+
+  let asset = p;
+  let cumDiv = 0;
+  let cumSpread = 0;
+  const timeline = document.getElementById('report-timeline');
+  let html = '';
+
+  for (let y=1; y<=7; y++) {
+    const yearDiv = asset * divRate;
+    const yearSpread = loanAmt * spreadRate;
+    asset = asset * (1+r);
+    cumDiv += yearDiv;
+    cumSpread += yearSpread;
+
+    html += `
+      <div class="timeline-item">
+        <div class="timeline-year">第 ${y} 年 — ${2024+y}年</div>
+        <div class="timeline-title">資產成長里程碑</div>
+        <div class="timeline-vals">
+          <div class="timeline-val">
+            <div class="timeline-val-num">${fmt(asset)}</div>
+            <div class="timeline-val-label">期末總資產</div>
+          </div>
+          <div class="timeline-val">
+            <div class="timeline-val-num" style="color:var(--gold)">${fmt(yearDiv)}</div>
+            <div class="timeline-val-label">本年股息</div>
+          </div>
+          <div class="timeline-val">
+            <div class="timeline-val-num" style="color:var(--blue)">${fmt(cumDiv)}</div>
+            <div class="timeline-val-label">累積股息</div>
+          </div>
+          <div class="timeline-val">
+            <div class="timeline-val-num" style="color:var(--purple)">${fmt(yearSpread)}</div>
+            <div class="timeline-val-label">借款套利</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  timeline.innerHTML = html;
+
+  const finalAsset = p * Math.pow(1+r, 7);
+  const totalDiv = p * ((Math.pow(1+r,7)-1)/r) * divRate;
+  const totalSpread = loanAmt * spreadRate * 7;
+  const roi = ((finalAsset - p + totalDiv + totalSpread) / p * 100).toFixed(1);
+
+  document.getElementById('r-total-asset').textContent = fmt(finalAsset);
+  document.getElementById('r-total-div').textContent = fmt(totalDiv);
+  document.getElementById('r-total-spread').textContent = fmt(totalSpread);
+  document.getElementById('r-roi').textContent = '+' + roi + '%';
+}
+
+// ===== NAV ACTIVE ON SCROLL =====
+function initScrollSpy() {
+  const sections = ['hero','model','calculator','insurers','cases','report'];
+  const links = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let cur = 'hero';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 100) cur = id;
+    });
+    links.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#'+cur);
+    });
+  }, { passive: true });
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderInsurers();
+  renderCases();
+  renderReport();
+  calcDividend();
+  calcCompound();
+  calcLoan();
+  initScrollSpy();
+});
+</script>
+
+</body>
+</html>
