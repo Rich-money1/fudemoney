@@ -1,0 +1,12 @@
+{
+  "name": "fude-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "富得財富管理 · 客戶配息提醒後端服務",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}
