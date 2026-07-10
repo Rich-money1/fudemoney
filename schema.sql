@@ -54,6 +54,19 @@ create table if not exists notification_log (
   unique (client_id, fund_id, sent_date)   -- 同一天同一檔基金不會重複發送
 );
 
+-- ── 6. 基金市場資料（MoneyDJ 定期更新，僅供「基金概況」頁面展示，不影響配息計算）──
+create table if not exists fund_market_data (
+  fund_id text primary key,
+  nav numeric,                 -- 最新淨值
+  return_1y numeric,           -- 1年報酬率（%）
+  return_3y numeric,           -- 3年報酬率（%）
+  source_url text,
+  updated_at timestamptz default now()
+);
+alter table fund_market_data enable row level security;
+-- 任何人（含未登入）都能讀取，因為只是公開參考資訊；只有後端 service_role 能寫入
+create policy "fmd_select_public" on fund_market_data for select using (true);
+
 -- ══════════════════════════════════════════
 -- Row Level Security（資料庫層強制權限隔離）
 -- ══════════════════════════════════════════
