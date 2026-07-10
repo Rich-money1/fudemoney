@@ -1,10 +1,10 @@
 const { fetchAllMarketIndexes } = require('../lib/marketIndex');
 
-/* 前端直接呼叫的公開只讀端點：台積電/聯發科/道瓊/S&P500/那斯達克即時報價
-   （TradingView 免費 widget 對這幾檔僅顯示「此商品僅適用TradingView」，改用官方/常用免費資料源代理） */
+/* 前端直接呼叫的公開只讀端點：市場指數即時報價（TWSE官方MIS + Yahoo Finance）
+   前端每15秒輪詢一次，快取時間對齊輪詢頻率，避免邊緣快取讓浮動報價顯得卡住不動 */
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
+  res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=30');
   try {
     const data = await fetchAllMarketIndexes();
     res.status(200).json(data);
