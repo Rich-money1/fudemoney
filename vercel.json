@@ -2,5 +2,8 @@
   "crons": [
     { "path": "/api/send-reminders", "schedule": "0 1 * * *" },
     { "path": "/api/update-fund-data", "schedule": "0 2 * * 1" }
-  ]
+  ],
+  "functions": {
+    "api/backfill-fund-history.js": { "maxDuration": 60 }
+  }
 }
