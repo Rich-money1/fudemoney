@@ -67,6 +67,17 @@ alter table fund_market_data enable row level security;
 -- 任何人（含未登入）都能讀取，因為只是公開參考資訊；只有後端 service_role 能寫入
 create policy "fmd_select_public" on fund_market_data for select using (true);
 
+-- ── 7. 基金淨值歷史紀錄（每次排程執行都新增一筆，累積出走勢圖用的資料）──
+create table if not exists fund_nav_history (
+  id uuid primary key default gen_random_uuid(),
+  fund_id text not null,
+  nav numeric not null,
+  recorded_at timestamptz default now()
+);
+create index if not exists idx_fund_nav_history_fund_id on fund_nav_history(fund_id, recorded_at);
+alter table fund_nav_history enable row level security;
+create policy "fnh_select_public" on fund_nav_history for select using (true);
+
 -- ══════════════════════════════════════════
 -- Row Level Security（資料庫層強制權限隔離）
 -- ══════════════════════════════════════════
