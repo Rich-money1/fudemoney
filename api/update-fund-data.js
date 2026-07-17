@@ -1,5 +1,6 @@
 const { supabase } = require('../lib/supabase');
 const { FUND_SOURCES, fetchFundData } = require('../lib/moneydj');
+const { generateMarketNote } = require('../lib/generateMarketNote');
 
 module.exports = async (req, res) => {
   if (process.env.CRON_SECRET) {
@@ -7,6 +8,22 @@ module.exports = async (req, res) => {
     if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
       res.status(401).send('Unauthorized');
       return;
+    }
+  }
+
+  // 每日投資觀點（需設定 ANTHROPIC_API_KEY 才會執行，沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
+  let marketNoteStatus = 'skipped';
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const content = await generateMarketNote();
+      const { error } = await supabase
+        .from('daily_market_note')
+        .upsert({ id: 1, content, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      marketNoteStatus = 'ok';
+    } catch (err) {
+      console.error('更新每日投資觀點失敗', err);
+      marketNoteStatus = 'failed: ' + err.message;
     }
   }
 
@@ -39,5 +56,5 @@ module.exports = async (req, res) => {
   }
 
   const okCount = results.filter(r => r.status === 'ok').length;
-  res.status(200).json({ updated: okCount, total: fundIds.length, results });
+  res.status(200).json({ updated: okCount, total: fundIds.length, results, marketNoteStatus });
 };
