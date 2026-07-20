@@ -4,6 +4,8 @@
     { "path": "/api/update-fund-data", "schedule": "0 2 * * *" }
   ],
   "functions": {
-    "api/backfill-fund-history.js": { "maxDuration": 60 }
+    "api/backfill-fund-history.js": { "maxDuration": 60 },
+    "api/send-reminders.js": { "maxDuration": 60 },
+    "api/generate-daily-report.js": { "maxDuration": 60 }
   }
 }

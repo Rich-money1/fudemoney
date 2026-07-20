@@ -1,6 +1,7 @@
 const { supabase } = require('../lib/supabase');
 const { pushMessage } = require('../lib/line');
 const { FUNDS, FUND_APPROX_DAY, findFund } = require('../lib/funds');
+const { runDailyReport } = require('../lib/dailyReport');
 
 function fmt(n) {
   return Math.round(n).toLocaleString('zh-TW');
@@ -93,5 +94,14 @@ module.exports = async (req, res) => {
     }
   }
 
-  res.status(200).json({ date: todayStr, sentCount, results });
+  // 每日市場報告（PDF+LINE連結，併入同一個每日排程，避免超過 Vercel Hobby 方案排程數量上限）
+  let dailyReportResult = null;
+  try {
+    dailyReportResult = await runDailyReport();
+  } catch (err) {
+    console.error('產生每日報告失敗', err);
+    dailyReportResult = { error: err.message };
+  }
+
+  res.status(200).json({ date: todayStr, sentCount, results, dailyReportResult });
 };
