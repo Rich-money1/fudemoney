@@ -8,7 +8,7 @@ create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   name text not null,
   role text not null default 'advisor' check (role in ('admin','advisor')),
-  status text not null default 'active' check (status in ('active','disabled')),
+  status text not null default 'pending' check (status in ('active','pending','disabled')), -- pending=待繳費，需管理者確認收款後開通為active
   created_at timestamptz default now()
 );
 
