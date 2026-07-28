@@ -1,5 +1,6 @@
 const { supabase } = require('../lib/supabase');
 const { FUND_SOURCES, fetchFundData } = require('../lib/moneydj');
+const { DIVIDEND_SOURCES, fetchDividendRate } = require('../lib/fundDividendRate');
 const { generateMarketNote } = require('../lib/generateMarketNote');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -71,6 +72,36 @@ module.exports = async (req, res) => {
     }
   }
 
+  // 各基金配息率（來源網站僅每月更新一次，這裡每天檢查一次即可自動跟上最新月配息率，
+  // 各來源彼此獨立、互不影響，用 Promise.allSettled 平行抓取以縮短總執行時間）
+  const dividendIds = Object.keys(DIVIDEND_SOURCES);
+  const dividendResults = await Promise.allSettled(
+    dividendIds.map(fundId => fetchDividendRate(fundId))
+  );
+
+  const dividendSummary = [];
+  for (let i = 0; i < dividendIds.length; i++) {
+    const fundId = dividendIds[i];
+    const outcome = dividendResults[i];
+    try {
+      if (outcome.status !== 'fulfilled' || !outcome.value) {
+        throw outcome.reason || new Error('查無配息資料');
+      }
+      const { error } = await supabase
+        .from('fund_dividend_rate')
+        .upsert({ ...outcome.value, updated_at: new Date().toISOString() }, { onConflict: 'fund_id' });
+      if (error) throw error;
+      dividendSummary.push({ fund_id: fundId, status: 'ok', rate: outcome.value.rate });
+    } catch (err) {
+      console.error(`更新 ${fundId} 配息率失敗`, err);
+      dividendSummary.push({ fund_id: fundId, status: 'failed', error: err.message });
+    }
+  }
+
   const okCount = results.filter(r => r.status === 'ok').length;
-  res.status(200).json({ updated: okCount, total: fundIds.length, results, marketNoteStatus });
+  const dividendOkCount = dividendSummary.filter(r => r.status === 'ok').length;
+  res.status(200).json({
+    updated: okCount, total: fundIds.length, results, marketNoteStatus,
+    dividendUpdated: dividendOkCount, dividendTotal: dividendIds.length, dividendResults: dividendSummary,
+  });
 };

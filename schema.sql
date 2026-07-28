@@ -78,6 +78,17 @@ create index if not exists idx_fund_nav_history_fund_id on fund_nav_history(fund
 alter table fund_nav_history enable row level security;
 create policy "fnh_select_public" on fund_nav_history for select using (true);
 
+-- ── 8. 基金配息率（月配息現金流計算用，各來源網站每日排程檢查一次，配息率僅每月變動）──
+create table if not exists fund_dividend_rate (
+  fund_id text primary key,
+  rate numeric not null,            -- 年化配息率（%），例如 9.12 代表 9.12%
+  dividend_date text,               -- 資料來源的最新一次配息基準日（原始字串）
+  source_url text,
+  updated_at timestamptz default now()
+);
+alter table fund_dividend_rate enable row level security;
+create policy "fdr_select_public" on fund_dividend_rate for select using (true);
+
 -- ══════════════════════════════════════════
 -- Row Level Security（資料庫層強制權限隔離）
 -- ══════════════════════════════════════════
