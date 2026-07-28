@@ -2,6 +2,22 @@ const { supabase } = require('../lib/supabase');
 const { FUND_SOURCES, fetchFundData } = require('../lib/moneydj');
 const { generateMarketNote } = require('../lib/generateMarketNote');
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// MoneyDJ 偶爾會逾時或回傳異常格式，失敗時等1秒後再試一次，避免單日抓取失敗就整天沒資料
+async function fetchFundDataWithRetry(fundId, attempts = 2) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fetchFundData(fundId);
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts - 1) await sleep(1000);
+    }
+  }
+  throw lastErr;
+}
+
 module.exports = async (req, res) => {
   if (process.env.CRON_SECRET) {
     const auth = req.headers['authorization'];
@@ -32,7 +48,7 @@ module.exports = async (req, res) => {
 
   for (const fundId of fundIds) {
     try {
-      const data = await fetchFundData(fundId);
+      const data = await fetchFundDataWithRetry(fundId);
 
       // 最新快照（供「即時淨值」欄位使用，同一檔基金只保留一筆最新的）
       const { error } = await supabase
