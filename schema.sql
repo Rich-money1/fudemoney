@@ -115,39 +115,39 @@ create policy "profiles_update_self" on profiles for update
 create policy "profiles_insert_admin" on profiles for insert
   with check (is_admin());
 
--- clients：員工只能操作自己的客戶；admin 能操作全部
+-- clients：每個人（含管理者）只能操作自己名下的客戶，管理者跟一般顧問的客戶資料互不關聯
 create policy "clients_select" on clients for select
-  using (owner_id = auth.uid() or is_admin());
+  using (owner_id = auth.uid());
 create policy "clients_insert" on clients for insert
-  with check (owner_id = auth.uid() or is_admin());
+  with check (owner_id = auth.uid());
 create policy "clients_update" on clients for update
-  using (owner_id = auth.uid() or is_admin());
+  using (owner_id = auth.uid());
 create policy "clients_delete" on clients for delete
-  using (owner_id = auth.uid() or is_admin());
+  using (owner_id = auth.uid());
 
 -- dividend_groups：跟著對應客戶的擁有者走
 create policy "dg_select" on dividend_groups for select
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "dg_insert" on dividend_groups for insert
-  with check (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  with check (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "dg_update" on dividend_groups for update
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "dg_delete" on dividend_groups for delete
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 
 -- growth_holdings：同樣邏輯
 create policy "gh_select" on growth_holdings for select
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "gh_insert" on growth_holdings for insert
-  with check (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  with check (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "gh_update" on growth_holdings for update
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 create policy "gh_delete" on growth_holdings for delete
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 
 -- notification_log：只能看，不能改（發送紀錄由後端 service_role 寫入）
 create policy "nl_select" on notification_log for select
-  using (exists(select 1 from clients c where c.id = client_id and (c.owner_id = auth.uid() or is_admin())));
+  using (exists(select 1 from clients c where c.id = client_id and c.owner_id = auth.uid()));
 
 -- ══════════════════════════════════════════
 -- 新使用者註冊時，自動建立 profiles 資料列
