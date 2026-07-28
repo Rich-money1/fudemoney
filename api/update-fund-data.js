@@ -19,6 +19,20 @@ async function fetchFundDataWithRetry(fundId, attempts = 2) {
   throw lastErr;
 }
 
+// 配息率來源（尤其 MoneyLink）偶爾會連線失敗，同樣失敗重試一次
+async function fetchDividendRateWithRetry(fundId, attempts = 2) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fetchDividendRate(fundId);
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts - 1) await sleep(1000);
+    }
+  }
+  throw lastErr;
+}
+
 module.exports = async (req, res) => {
   if (process.env.CRON_SECRET) {
     const auth = req.headers['authorization'];
@@ -76,7 +90,7 @@ module.exports = async (req, res) => {
   // 各來源彼此獨立、互不影響，用 Promise.allSettled 平行抓取以縮短總執行時間）
   const dividendIds = Object.keys(DIVIDEND_SOURCES);
   const dividendResults = await Promise.allSettled(
-    dividendIds.map(fundId => fetchDividendRate(fundId))
+    dividendIds.map(fundId => fetchDividendRateWithRetry(fundId))
   );
 
   const dividendSummary = [];
