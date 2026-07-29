@@ -47,10 +47,11 @@ module.exports = async (req, res) => {
       const text = event.message.text.trim();
 
       // 嘗試用這段文字當作 link_code 查找待綁定的客戶
+      // link_code 一律是小寫英數，但客戶輸入時常會有大小寫混用（例如手機自動大寫），改用不分大小寫比對
       const { data: client, error } = await supabase
         .from('clients')
         .select('id, name, line_user_id')
-        .eq('link_code', text)
+        .ilike('link_code', text)
         .maybeSingle();
 
       if (error) {
