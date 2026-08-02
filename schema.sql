@@ -89,6 +89,19 @@ create table if not exists fund_dividend_rate (
 alter table fund_dividend_rate enable row level security;
 create policy "fdr_select_public" on fund_dividend_rate for select using (true);
 
+-- ── 9. 保單借款利率資料庫（原本寫死在網站首頁 JS，改存資料庫方便調整）──
+create table if not exists insurer_loan_rate (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  rate numeric not null,
+  max_pct numeric not null,
+  rating text not null,
+  sort_order int not null default 0,
+  updated_at timestamptz default now()
+);
+alter table insurer_loan_rate enable row level security;
+create policy "ilr_select_public" on insurer_loan_rate for select using (true);
+
 -- ══════════════════════════════════════════
 -- Row Level Security（資料庫層強制權限隔離）
 -- ══════════════════════════════════════════

@@ -79,6 +79,14 @@ body {
   color: var(--gold);
   background: rgba(201,168,76,0.1);
 }
+.nav-toggle {
+  display: none;
+  width: 36px; height: 36px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+}
+.nav-toggle span { width: 18px; height: 2px; background: var(--gold); border-radius: 2px; }
 
 /* ==================== HERO ==================== */
 .hero {
@@ -473,7 +481,17 @@ tr:last-child td { border-bottom: none; }
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute; top: 64px; left: 0; right: 0;
+    flex-direction: column; gap: 2px;
+    background: rgba(10,14,26,0.98);
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { display: block; padding: 12px; }
   .hero-stats { gap: 1.5rem; }
   .model-flow { flex-direction: column; }
   .flow-arrow { transform: rotate(90deg); }
@@ -498,6 +516,41 @@ tr:last-child td { border-bottom: none; }
 }
 .highlight-box h4 { color: var(--gold); margin-bottom: 0.5rem; }
 .highlight-box p { font-size: 14px; color: var(--text-muted); }
+
+/* ==================== RISK DISCLOSURE BOX ==================== */
+.risk-box {
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 12px; padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.risk-box h4 { color: var(--red); margin-bottom: 0.5rem; font-size: 14px; }
+.risk-box p, .risk-box li { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+.risk-box ul { padding-left: 1.2rem; }
+.footer-disclaimer {
+  max-width: 700px; margin: 1.5rem auto 0; padding: 1rem 1.5rem;
+  border: 1px solid rgba(239,68,68,0.3); border-radius: 10px;
+  background: rgba(239,68,68,0.06);
+  font-size: 13px; color: var(--text); line-height: 1.8; text-align: left;
+}
+
+/* ==================== CONTACT FORM ==================== */
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkbox-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 8px;
+  background: var(--dark-4); border: 1px solid var(--border);
+  font-size: 13px; cursor: pointer;
+}
+.checkbox-chip input { accent-color: var(--gold); }
+.form-msg { font-size: 13px; margin-top: 1rem; text-align: center; }
+.form-msg.ok { color: var(--green); }
+.form-msg.err { color: var(--red); }
+.contact-cta {
+  display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+.data-updated-note { font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: right; }
 
 /* ==================== PROGRESS BAR ==================== */
 .progress-wrap { margin: 8px 0; }
@@ -526,14 +579,18 @@ tr:last-child td { border-bottom: none; }
       <div class="nav-sub">Eddie Lin · Asset Consultant Manager</div>
     </div>
   </div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#hero" class="active">首頁</a></li>
     <li><a href="#model">資產模型</a></li>
     <li><a href="#calculator">計算器</a></li>
     <li><a href="#insurers">保險公司</a></li>
     <li><a href="#cases">成功案例</a></li>
     <li><a href="#report">七年報告</a></li>
+    <li><a href="#contact">免費諮詢</a></li>
   </ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-links">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ==================== HERO ==================== -->
@@ -668,8 +725,8 @@ tr:last-child td { border-bottom: none; }
           <h3>攻擊層 — 複利滾雪球</h3>
           <p>透過再投資複利效應，將股息收益持續累積，7年期間資產可實現指數型成長，達到財富自由里程碑。</p>
           <div class="highlight-box" style="margin-top:1rem">
-            <h4>💡 複利魔法</h4>
-            <p>年化8%，10年後每100萬本金成長為<strong style="color:var(--gold)">215.9萬</strong>，翻倍以上！</p>
+            <h4>💡 複利效果試算</h4>
+            <p>假設年化報酬率8%（非保證，僅為試算假設），10年後每100萬本金理論上成長為<strong style="color:var(--gold)">215.9萬</strong>；實際報酬率會隨市場波動，可能高於或低於此假設。</p>
           </div>
         </div>
       </div>
@@ -791,6 +848,15 @@ tr:last-child td { border-bottom: none; }
         <div style="text-align:center;color:var(--text-muted);padding:2rem">點擊試算查看結果</div>
       </div>
     </div>
+    <div class="risk-box">
+      <h4>⚠️ 保單借款套利風險提醒</h4>
+      <ul>
+        <li>借款利率為保險公司「宣告利率」，會隨市場浮動調整，未來可能高於本試算採用的數字。</li>
+        <li>投資標的淨值可能下跌，配息率與投資報酬率均非保證，實際結果可能低於歷史配息紀錄，甚至產生虧損。</li>
+        <li>當投資報酬率低於借款利率時，「利差」會轉為負值，此試算工具亦允許算出負數結果，請務必將此情境納入評估。</li>
+        <li>保單借款會降低保單身故/失能保障之淨額，且未依約繳息可能影響保單效力，實際條件請以各保險公司保單條款為準。</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -819,6 +885,11 @@ tr:last-child td { border-bottom: none; }
         <tbody id="insurer-tbody"></tbody>
       </table>
     </div>
+    <div class="data-updated-note" id="insurer-updated"></div>
+    <div class="risk-box">
+      <h4>⚠️ 利率僅供參考</h4>
+      <p>以上借款利率為各保險公司對外揭露之參考數字，實際核貸利率、成數依個別保單條件及保險公司當期宣告利率為準，簽約前請直接向保險公司或業務員確認最新數字。</p>
+    </div>
   </div>
 </section>
 
@@ -830,6 +901,10 @@ tr:last-child td { border-bottom: none; }
     <p>5大實績案例 · 數據見證財富成長的力量</p>
   </div>
   <div class="grid-3" id="cases-grid"></div>
+  <div class="risk-box">
+    <h4>⚠️ 案例說明</h4>
+    <p>以上為歷史情境模擬案例，反映特定客戶在特定期間、特定市場條件下的實際或試算結果，不代表未來報酬保證，也不代表所有客戶皆可複製相同成果。個人投資結果因本金、風險屬性、進場時點及市場表現而異。</p>
+  </div>
 </section>
 
 <!-- ==================== 7-YEAR REPORT ==================== -->
@@ -868,6 +943,92 @@ tr:last-child td { border-bottom: none; }
   </div>
 </section>
 
+<!-- ==================== CONTACT / LEAD FORM ==================== -->
+<section class="section-full" id="contact" style="background:var(--dark-2);border-top:1px solid var(--border)">
+  <div class="section-inner">
+    <div class="section-title">
+      <h2>免費<span>專屬方案諮詢</span></h2>
+      <div class="divider"></div>
+      <p>留下基本資料，Eddie 將依您的狀況客製化配置建議</p>
+    </div>
+
+    <div class="contact-cta">
+      <a href="https://line.me/R/ti/p/@REPLACE_WITH_LINE_OA_ID" target="_blank" rel="noopener" class="btn btn-gold">💬 直接加 LINE 好友諮詢</a>
+    </div>
+
+    <form id="prospect-form" class="calc-grid" style="max-width:900px;margin:0 auto" onsubmit="return submitProspect(event)">
+      <div>
+        <div class="input-group">
+          <label>試算本金 (TWD，選填)</label>
+          <input type="number" id="pf-principal" min="0" placeholder="例如 4000000">
+        </div>
+        <div class="input-group">
+          <label>每月開支 (TWD，選填)</label>
+          <input type="number" id="pf-expense" min="0" placeholder="例如 60000">
+        </div>
+        <div class="input-group">
+          <label>期望每月配息 (TWD，選填)</label>
+          <input type="number" id="pf-dividend" min="0" placeholder="例如 50000">
+        </div>
+        <div class="input-group">
+          <label>每月收入區間</label>
+          <select id="pf-income">
+            <option value="">不透露</option>
+            <option value="50000以下">5萬以下</option>
+            <option value="50000-100000">5萬～10萬</option>
+            <option value="100000-200000">10萬～20萬</option>
+            <option value="200000+">20萬以上</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="input-group">
+          <label>已投資項目（可複選）</label>
+          <div class="checkbox-group">
+            <label class="checkbox-chip"><input type="checkbox" value="stock">股票</label>
+            <label class="checkbox-chip"><input type="checkbox" value="etf">ETF</label>
+            <label class="checkbox-chip"><input type="checkbox" value="insurance">保單</label>
+            <label class="checkbox-chip"><input type="checkbox" value="fund">基金</label>
+            <label class="checkbox-chip"><input type="checkbox" value="cash">現金</label>
+            <label class="checkbox-chip"><input type="checkbox" value="none">目前皆無</label>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>負債狀況</label>
+          <select id="pf-debt">
+            <option value="none">都沒有</option>
+            <option value="credit">信貸</option>
+            <option value="car">車貸</option>
+            <option value="both">信貸+車貸</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>方便聯繫時間</label>
+          <select id="pf-time">
+            <option value="9-12">上午 9-12 點</option>
+            <option value="12-17">下午 12-17 點</option>
+            <option value="17-21">晚上 17-21 點</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>聯絡方式 *</label>
+          <select id="pf-method" required>
+            <option value="line">LINE ID</option>
+            <option value="instagram">Instagram</option>
+            <option value="phone">手機號碼</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>聯絡資訊 *</label>
+          <input type="text" id="pf-contact" required placeholder="請輸入對應的 LINE ID / IG 帳號 / 手機號碼">
+        </div>
+        <button type="submit" class="calc-btn" id="pf-submit">📩 送出諮詢需求</button>
+        <div class="form-msg" id="pf-msg"></div>
+      </div>
+    </form>
+  </div>
+</section>
+
 <!-- ==================== FOOTER ==================== -->
 <footer class="footer">
   <div class="footer-logo">富得財富管理</div>
@@ -877,8 +1038,13 @@ tr:last-child td { border-bottom: none; }
     <span>💼 Asset Consultant Manager</span>
     <span>📊 富得現金流資產配置專案</span>
   </div>
+  <div class="footer-disclaimer">
+    <strong style="color:var(--red)">⚠️ 風險預告：</strong>
+    本網站所載試算結果、案例數據及利率資訊僅供教育參考，不構成投資、保險或借貸之要約或建議，亦不保證任何報酬。
+    投資與保單借款皆有風險，可能發生本金虧損或利差為負之情形，實際條件請以保險公司/投信公司正式文件為準，投資前請審慎評估自身財務狀況並諮詢專業顧問。
+  </div>
   <div class="footer-copy">
-    © 2024 富得財富管理 Fude Wealth · 本系統僅供參考，投資有風險，請謹慎評估
+    © 2024 富得財富管理 Fude Wealth
   </div>
 </footer>
 
@@ -894,8 +1060,8 @@ const STATE = {
   loanRate: 0.0325
 };
 
-// ===== INSURERS DATA =====
-const INSURERS = [
+// ===== INSURERS DATA (fallback, overridden by /api/insurer-rates if available) =====
+let insurersData = [
   { name:'富邦人壽', rate:3.25, maxPct:90, rating:'AAA' },
   { name:'國泰人壽', rate:3.50, maxPct:90, rating:'AAA' },
   { name:'南山人壽', rate:3.75, maxPct:85, rating:'AA+' },
@@ -1095,7 +1261,7 @@ function renderInsurers() {
   const base = 4000000 * 0.55;
   const investRate = 8;
   const tbody = document.getElementById('insurer-tbody');
-  tbody.innerHTML = INSURERS.map(ins => {
+  tbody.innerHTML = insurersData.map(ins => {
     const monthlyInt = base * ins.rate/100/12;
     const monthlyInv = base * investRate/100/12;
     const netMonthly = monthlyInv - monthlyInt;
@@ -1198,7 +1364,7 @@ function renderReport() {
 
 // ===== NAV ACTIVE ON SCROLL =====
 function initScrollSpy() {
-  const sections = ['hero','model','calculator','insurers','cases','report'];
+  const sections = ['hero','model','calculator','insurers','cases','report','contact'];
   const links = document.querySelectorAll('.nav-links a');
   window.addEventListener('scroll', () => {
     let cur = 'hero';
@@ -1212,6 +1378,116 @@ function initScrollSpy() {
   }, { passive: true });
 }
 
+// ===== MOBILE NAV TOGGLE =====
+function initNavToggle() {
+  const btn = document.getElementById('nav-toggle');
+  const links = document.getElementById('nav-links');
+  if (!btn || !links) return;
+  btn.addEventListener('click', () => {
+    const open = links.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      links.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
+
+// ===== LIVE DATA: fund dividend rates + insurer loan rates =====
+// 兩支端點都是漸進增強：抓不到就沿用頁面內建的預設值/範例資料，不影響原本功能。
+async function loadLiveRates() {
+  try {
+    const res = await fetch('/api/fund-rates');
+    if (res.ok) {
+      const data = await res.json();
+      let latestDate = null;
+      if (data.allianz?.rate != null) {
+        STATE.allianzRate = data.allianz.rate / 100;
+        document.getElementById('div-allianz-rate').value = data.allianz.rate;
+        latestDate = data.allianz.dividend_date;
+      }
+      if (data.eastspring?.rate != null) {
+        STATE.eastRate = data.eastspring.rate / 100;
+        document.getElementById('div-east-rate').value = data.eastspring.rate;
+        latestDate = latestDate || data.eastspring.dividend_date;
+      }
+      if (latestDate) {
+        const note = document.createElement('div');
+        note.className = 'data-updated-note';
+        note.textContent = `配息率資料更新日：${latestDate}（來源：基金公司公開配息紀錄）`;
+        document.getElementById('div-result')?.after(note);
+      }
+      calcDividend();
+    }
+  } catch (err) {
+    console.warn('讀取即時配息率失敗，沿用預設值', err);
+  }
+
+  try {
+    const res = await fetch('/api/insurer-rates');
+    if (res.ok) {
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows.length) {
+        insurersData = rows.map(r => ({ name: r.name, rate: r.rate, maxPct: r.max_pct, rating: r.rating }));
+        renderInsurers();
+        const note = document.getElementById('insurer-updated');
+        if (note) note.textContent = '利率資料來源：資料庫（可隨時更新，非寫死於網頁）';
+      }
+    }
+  } catch (err) {
+    console.warn('讀取即時保單借款利率失敗，沿用預設值', err);
+  }
+}
+
+// ===== PROSPECT INTENT FORM =====
+async function submitProspect(evt) {
+  evt.preventDefault();
+  const btn = document.getElementById('pf-submit');
+  const msg = document.getElementById('pf-msg');
+  const investedOptions = Array.from(document.querySelectorAll('#prospect-form .checkbox-chip input:checked')).map(el => el.value);
+  const params = new URLSearchParams(window.location.search);
+
+  const payload = {
+    principal: document.getElementById('pf-principal').value,
+    monthly_expense: document.getElementById('pf-expense').value,
+    desired_monthly_dividend: document.getElementById('pf-dividend').value,
+    monthly_income: document.getElementById('pf-income').value,
+    invested_options: investedOptions,
+    debt_status: document.getElementById('pf-debt').value,
+    preferred_contact_time: document.getElementById('pf-time').value,
+    contact_method: document.getElementById('pf-method').value,
+    contact_value: document.getElementById('pf-contact').value,
+    ref: params.get('ref') || '',
+  };
+
+  btn.disabled = true;
+  btn.textContent = '送出中...';
+  msg.textContent = '';
+  msg.className = 'form-msg';
+
+  try {
+    const res = await fetch('/api/submit-prospect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '提交失敗');
+    msg.textContent = '✅ 已收到您的需求，Eddie 將盡快與您聯繫！';
+    msg.classList.add('ok');
+    document.getElementById('prospect-form').reset();
+  } catch (err) {
+    msg.textContent = '⚠️ ' + (err.message || '提交失敗，請稍後再試或直接加 LINE 好友聯繫');
+    msg.classList.add('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📩 送出諮詢需求';
+  }
+  return false;
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   renderInsurers();
@@ -1221,6 +1497,8 @@ document.addEventListener('DOMContentLoaded', () => {
   calcCompound();
   calcLoan();
   initScrollSpy();
+  initNavToggle();
+  loadLiveRates();
 });
 </script>
 
