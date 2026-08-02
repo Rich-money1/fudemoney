@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>盯盤智能助理 · 富得財富管理</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --border: #232733;
+    --gold: #d4af6a;
+    --text: #e8e8ec;
+    --muted: #8a8f9c;
+    --up: #e5484d;   /* 台股習慣紅漲綠跌 */
+    --down: #2fb35a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
+    padding: 24px 16px 64px;
+  }
+  header { max-width: 1080px; margin: 0 auto 20px; }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: 0.02em; }
+  h1 span { color: var(--gold); }
+  .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .disclaimer {
+    max-width: 1080px; margin: 16px auto; padding: 12px 16px;
+    border: 1px solid var(--border); border-left: 3px solid var(--gold);
+    border-radius: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.6;
+  }
+  .meta {
+    max-width: 1080px; margin: 0 auto 12px; display: flex; justify-content: space-between;
+    align-items: center; font-size: 12.5px; color: var(--muted);
+  }
+  #refreshBtn {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px;
+  }
+  #refreshBtn:hover { border-color: var(--gold); color: var(--gold); }
+  .group { max-width: 1080px; margin: 0 auto 28px; }
+  .group h2 {
+    font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 12px;
+  }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .card-name { font-size: 15px; font-weight: 600; }
+  .card-symbol { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .price { font-size: 20px; font-weight: 700; }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+  .badge {
+    display: inline-block; font-size: 11.5px; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--border); margin-bottom: 10px;
+  }
+  .badge.buy { color: #ffcf87; border-color: #6b5527; background: rgba(212,175,106,0.08); }
+  .badge.wait { color: var(--muted); }
+  .badge.avoid, .badge.stopped { color: var(--up); border-color: #5a2a2c; }
+  .badge.range { color: var(--muted); }
+  .levels { font-size: 12.5px; color: var(--muted); line-height: 1.9; margin-bottom: 8px; }
+  .levels b { color: var(--text); font-weight: 600; }
+  .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; }
+  .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>富得財富管理 <span>· 盯盤智能助理</span></h1>
+  <p class="subtitle">技術指標規則計算進場/止損/止盈錨點，AI 僅在錨點基礎上做文字判讀 — 顧問內部參考用</p>
+</header>
+
+<div class="disclaimer">
+  本頁面僅供持牌顧問內部盯盤參考，並非投資建議、招攬或要約。所有進場區間、止損、止盈皆為系統依技術指標規則計算之風險管理參考值，
+  非保證獲利，市場實際走勢可能大幅偏離。資料每日排程更新一次，非即時報價。
+</div>
+
+<div class="meta">
+  <span id="updatedAt">載入中…</span>
+  <button id="refreshBtn" onclick="load()">重新整理</button>
+</div>
+
+<div id="content" class="loading">讀取盯盤資料中…</div>
+
+<script>
+const GROUP_LABELS = { TW: '台股個股', US: '美股個股', INDEX: '大盤指數', FX: '匯率', METAL: '貴金屬' };
+const GROUP_ORDER = ['TW', 'US', 'INDEX', 'FX', 'METAL'];
+const SIGNAL_CLASS = {
+  '買進區間': 'buy',
+  '觀望': 'wait',
+  '避免追高': 'avoid',
+  '跌破止損': 'stopped',
+  '盤整': 'range',
+};
+
+function fmtNum(v) {
+  if (v == null) return '—';
+  const n = Number(v);
+  return n.toLocaleString('zh-TW', { maximumFractionDigits: n < 10 ? 4 : 2 });
+}
+
+function renderCard(row) {
+  const changeCls = row.change_percent > 0 ? 'up' : row.change_percent < 0 ? 'down' : '';
+  const changeSign = row.change_percent > 0 ? '+' : '';
+  const badgeCls = SIGNAL_CLASS[row.signal] || 'wait';
+  const entryText = (row.entry_low != null && row.entry_high != null)
+    ? `${fmtNum(row.entry_low)} ~ ${fmtNum(row.entry_high)}` : '目前無明確進場區間';
+
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div><span class="card-name">${row.name}</span><span class="card-symbol">${row.symbol}</span></div>
+      </div>
+      <div class="price-row">
+        <span class="price">${fmtNum(row.price)}</span>
+        <span class="change ${changeCls}">${changeSign}${row.change_percent != null ? row.change_percent : '—'}%</span>
+        <span style="color:var(--muted);font-size:12px;">${row.trend || ''} · RSI ${fmtNum(row.rsi14)}</span>
+      </div>
+      <span class="badge ${badgeCls}">${row.signal || '—'}</span>
+      <div class="levels">
+        進場區間：<b>${entryText}</b><br>
+        止損：<b>${fmtNum(row.stop_loss)}</b>　止盈1：<b>${fmtNum(row.take_profit_1)}</b>　止盈2：<b>${fmtNum(row.take_profit_2)}</b>
+      </div>
+      ${row.rationale ? `<div class="rationale">${row.rationale}</div>` : ''}
+    </div>`;
+}
+
+async function load() {
+  const content = document.getElementById('content');
+  const updatedAt = document.getElementById('updatedAt');
+  content.className = 'loading';
+  content.textContent = '讀取盯盤資料中…';
+  try {
+    const res = await fetch('/api/trading-signals');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { signals } = await res.json();
+
+    if (!signals || signals.length === 0) {
+      content.className = 'empty';
+      content.textContent = '尚無盯盤資料，請確認排程 /api/update-trading-signals 已執行過。';
+      updatedAt.textContent = '';
+      return;
+    }
+
+    const latest = signals.reduce((max, s) => s.updated_at > max ? s.updated_at : max, signals[0].updated_at);
+    updatedAt.textContent = '資料更新於：' + new Date(latest).toLocaleString('zh-TW');
+
+    const groups = {};
+    signals.forEach(s => { (groups[s.market] = groups[s.market] || []).push(s); });
+
+    content.className = '';
+    content.innerHTML = GROUP_ORDER.filter(g => groups[g]).map(g => `
+      <div class="group">
+        <h2>${GROUP_LABELS[g] || g}</h2>
+        <div class="cards">${groups[g].map(renderCard).join('')}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    content.className = 'empty';
+    content.textContent = '讀取失敗：' + err.message;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
