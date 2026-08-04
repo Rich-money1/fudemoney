@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>投資分析網站 · K線圖</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+  #chartCanvas { width: 100%; display: block; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin: 6px 0 16px; }
+  .legend span.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  .range-btns button { padding: 4px 10px; font-size: 12px; }
+  .range-btns button.active { color: var(--gold); border-color: var(--gold); }
+  .tv-note { font-size: 11px; color: var(--muted-soft); margin-top: 6px; }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbarSlot"></nav>
+<main class="main">
+  <div class="page-head"><h1 id="title">K線圖</h1></div>
+
+  <div class="tabs-row range-btns">
+    <button data-range="3mo" onclick="setRange('3mo')">3個月</button>
+    <button data-range="6mo" class="active" onclick="setRange('6mo')">6個月</button>
+    <button data-range="1y" onclick="setRange('1y')">1年</button>
+  </div>
+
+  <div id="chartWrap"><div class="loading">讀取K線中…</div></div>
+  <div class="legend">
+    <span><span class="dot" style="background:#d4af6a;"></span>SMA20</span>
+    <span><span class="dot" style="background:#5b8def;"></span>SMA50</span>
+    <span><span class="dot" style="background:rgba(212,175,106,0.6);"></span>布林通道</span>
+    <span><span class="dot" style="background:#ffcf87;"></span>進場區間</span>
+    <span><span class="dot" style="background:#e5484d;"></span>止損</span>
+    <span><span class="dot" style="background:#2fb35a;"></span>止盈</span>
+  </div>
+
+  <h2 class="section">技術指標</h2>
+  <div id="indicatorPanel" class="stat-row"><div class="loading">計算中…</div></div>
+
+  <h2 class="section">AI 判讀（盯盤智能助理）</h2>
+  <div id="signalPanel"><div class="loading">讀取中…</div></div>
+
+  <h2 class="section">TradingView 技術評級</h2>
+  <div id="tvWidget"></div>
+  <div class="tv-note">此區塊畫面由 TradingView 官方 widget 提供，僅供對照參考，不影響本站自己算出的進場/止損/止盈錨點。若代碼對照不到，可能是Yahoo與TradingView代碼格式不同，換個交易所/代碼格式即可。</div>
+
+  <h2 class="section">策略回測</h2>
+  <div class="disclaimer">
+    只回測系統的技術指標規則（進場區間/止損/止盈錨點），不模擬AI文字判讀那層。模擬規則：進場區間被觸及即進場，
+    之後先碰到止損或止盈就出場，超過40個交易日未觸發任一邊界則以當時收盤價出場。歷史績效不代表未來表現。
+  </div>
+  <div class="form-row">
+    <select id="btRange">
+      <option value="1y">近1年</option>
+      <option value="2y" selected>近2年</option>
+      <option value="5y">近5年</option>
+    </select>
+    <button class="primary" onclick="runBacktestUI()">執行回測</button>
+  </div>
+  <div id="backtestResult"></div>
+</main>
+
+<script src="/shared.js"></script>
+<script>
+mountNavbar('watchlist');
+const params = new URLSearchParams(location.search);
+const symbol = params.get('symbol');
+let currentRange = '6mo';
+
+/* Yahoo代碼 → TradingView代碼最佳猜測，跟 lib/tradingview.js 的邏輯一致 */
+function toTradingViewSymbol(sym) {
+  if (/\.TW$/i.test(sym)) return `TWSE:${sym.replace(/\.TW$/i, '')}`;
+  if (/-USD$/i.test(sym)) return `COINBASE:${sym.replace(/-USD$/i, '')}USD`;
+  if (sym.startsWith('^')) {
+    const map = { '^DJI': 'TVC:DJI', '^GSPC': 'TVC:SPX', '^IXIC': 'TVC:IXIC', '^TWII': 'TWSE:TAIEX' };
+    return map[sym] || sym.replace('^', '');
+  }
+  if (/=X$/i.test(sym)) return `FX:${sym.replace('=X', '')}`;
+  if (/=F$/i.test(sym)) {
+    const map = { 'GC=F': 'TVC:GOLD', 'SI=F': 'TVC:SILVER' };
+    return map[sym] || sym;
+  }
+  return sym;
+}
+
+function renderTvWidget(sym) {
+  const el = document.getElementById('tvWidget');
+  el.innerHTML = '';
+  const container = document.createElement('div');
+  container.className = 'tradingview-widget-container';
+  el.appendChild(container);
+  const script = document.createElement('script');
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+  script.async = true;
+  script.text = JSON.stringify({
+    interval: '1D',
+    width: '100%',
+    isTransparent: true,
+    height: 300,
+    symbol: toTradingViewSymbol(sym),
+    showIntervalTabs: true,
+    displayMode: 'single',
+    locale: 'zh_TW',
+    colorTheme: 'dark',
+  });
+  container.appendChild(script);
+}
+
+if (!symbol) {
+  document.getElementById('chartWrap').innerHTML = '<div class="empty">網址缺少 ?symbol= 參數，例如 chart.html?symbol=2330.TW</div>';
+} else {
+  document.getElementById('title').textContent = symbol;
+  renderTvWidget(symbol);
+  loadAll();
+}
+
+function setRange(r) {
+  currentRange = r;
+  document.querySelectorAll('.range-btns button').forEach(b => b.classList.toggle('active', b.dataset.range === r));
+  loadAll();
+}
+
+// ── 客戶端指標計算（純函式，跟後端 lib/indicators.js 邏輯一致，供圖表疊加線與面板顯示）──
+function smaSeries(values, period) {
+  const out = new Array(values.length).fill(null);
+  for (let i = period - 1; i < values.length; i++) {
+    let sum = 0;
+    for (let j = i - period + 1; j <= i; j++) sum += values[j];
+    out[i] = sum / period;
+  }
+  return out;
+}
+function bollingerSeries(values, period = 20, mult = 2) {
+  const upper = new Array(values.length).fill(null);
+  const lower = new Array(values.length).fill(null);
+  for (let i = period - 1; i < values.length; i++) {
+    const slice = values.slice(i - period + 1, i + 1);
+    const mean = slice.reduce((a, b) => a + b, 0) / period;
+    const variance = slice.reduce((a, b) => a + (b - mean) ** 2, 0) / period;
+    const sd = Math.sqrt(variance);
+    upper[i] = mean + mult * sd;
+    lower[i] = mean - mult * sd;
+  }
+  return { upper, lower };
+}
+function rsiLatest(closes, period = 14) {
+  if (closes.length < period + 1) return null;
+  const recent = closes.slice(-(period + 1));
+  let gains = 0, losses = 0;
+  for (let i = 1; i < recent.length; i++) {
+    const diff = recent[i] - recent[i - 1];
+    if (diff >= 0) gains += diff; else losses -= diff;
+  }
+  const avgGain = gains / period, avgLoss = losses / period;
+  if (avgLoss === 0) return 100;
+  return +(100 - 100 / (1 + avgGain / avgLoss)).toFixed(2);
+}
+function atrLatest(candles, period = 14) {
+  if (candles.length < period + 1) return null;
+  const trs = [];
+  for (let i = 1; i < candles.length; i++) {
+    const cur = candles[i], prev = candles[i - 1];
+    trs.push(Math.max(cur.high - cur.low, Math.abs(cur.high - prev.close), Math.abs(cur.low - prev.close)));
+  }
+  const recent = trs.slice(-period);
+  return recent.reduce((a, b) => a + b, 0) / period;
+}
+
+function renderChart(candles, overlays, levels) {
+  const wrap = document.getElementById('chartWrap');
+  wrap.innerHTML = '<canvas id="chartCanvas"></canvas>';
+  const canvas = document.getElementById('chartCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = canvas.parentElement.clientWidth;
+  const cssHeight = 460;
+  canvas.width = cssWidth * dpr;
+  canvas.height = cssHeight * dpr;
+  canvas.style.width = cssWidth + 'px';
+  canvas.style.height = cssHeight + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const priceAreaHeight = cssHeight - 80;
+  const volumeAreaTop = priceAreaHeight + 14;
+  const volumeAreaHeight = 55;
+
+  const n = candles.length;
+  const padding = { left: 8, right: 64, top: 10 };
+  const plotWidth = cssWidth - padding.left - padding.right;
+  const candleSlot = plotWidth / n;
+  const candleWidth = Math.max(1, candleSlot * 0.6);
+
+  let minLow = Math.min(...candles.map(c => c.low));
+  let maxHigh = Math.max(...candles.map(c => c.high));
+  const overlayVals = [];
+  ['sma20', 'sma50', 'bbUpper', 'bbLower'].forEach(k => {
+    (overlays[k] || []).forEach(v => { if (v != null) overlayVals.push(v); });
+  });
+  if (levels) Object.values(levels).forEach(v => { if (v != null) overlayVals.push(v); });
+  if (overlayVals.length) {
+    minLow = Math.min(minLow, ...overlayVals);
+    maxHigh = Math.max(maxHigh, ...overlayVals);
+  }
+  const pad = (maxHigh - minLow) * 0.06 || 1;
+  minLow -= pad; maxHigh += pad;
+
+  const yPrice = v => padding.top + (maxHigh - v) / (maxHigh - minLow) * priceAreaHeight;
+  const xIdx = i => padding.left + i * candleSlot + candleSlot / 2;
+
+  ctx.strokeStyle = '#232733';
+  ctx.fillStyle = '#8a8f9c';
+  ctx.font = '11px sans-serif';
+  ctx.lineWidth = 1;
+  for (let g = 0; g <= 5; g++) {
+    const v = minLow + (maxHigh - minLow) * (g / 5);
+    const y = yPrice(v);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(cssWidth - padding.right, y);
+    ctx.stroke();
+    ctx.fillText(v.toFixed(v < 10 ? 3 : 1), cssWidth - padding.right + 4, y + 3);
+  }
+
+  candles.forEach((c, i) => {
+    const x = xIdx(i);
+    const up = c.close >= c.open;
+    ctx.strokeStyle = up ? '#e5484d' : '#2fb35a';
+    ctx.fillStyle = up ? '#e5484d' : '#2fb35a';
+    ctx.beginPath();
+    ctx.moveTo(x, yPrice(c.high));
+    ctx.lineTo(x, yPrice(c.low));
+    ctx.stroke();
+    const bodyTop = yPrice(Math.max(c.open, c.close));
+    const bodyBottom = yPrice(Math.min(c.open, c.close));
+    ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, Math.max(1, bodyBottom - bodyTop));
+  });
+
+  function drawLine(series, color, width) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width || 1.3;
+    ctx.beginPath();
+    let started = false;
+    series.forEach((v, i) => {
+      if (v == null) return;
+      const x = xIdx(i), y = yPrice(v);
+      if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+    });
+    ctx.stroke();
+  }
+  drawLine(overlays.sma20, '#d4af6a');
+  drawLine(overlays.sma50, '#5b8def');
+  drawLine(overlays.bbUpper, 'rgba(212,175,106,0.35)');
+  drawLine(overlays.bbLower, 'rgba(212,175,106,0.35)');
+
+  if (levels) {
+    const styles = {
+      entryLow: { color: '#ffcf87', label: '進場下緣' },
+      entryHigh: { color: '#ffcf87', label: '進場上緣' },
+      stopLoss: { color: '#e5484d', label: '止損' },
+      takeProfit1: { color: '#2fb35a', label: '止盈1' },
+      takeProfit2: { color: '#2fb35a', label: '止盈2' },
+    };
+    Object.entries(styles).forEach(([key, style]) => {
+      const v = levels[key];
+      if (v == null) return;
+      const y = yPrice(v);
+      ctx.strokeStyle = style.color;
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(cssWidth - padding.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = style.color;
+      ctx.font = '10.5px sans-serif';
+      ctx.fillText(`${style.label} ${v.toFixed(v < 10 ? 3 : 1)}`, padding.left + 4, y - 3);
+    });
+  }
+
+  const maxVol = Math.max(...candles.map(c => c.volume || 0), 1);
+  candles.forEach((c, i) => {
+    const x = xIdx(i);
+    const h = ((c.volume || 0) / maxVol) * volumeAreaHeight;
+    ctx.fillStyle = c.close >= c.open ? 'rgba(229,72,77,0.45)' : 'rgba(47,179,90,0.45)';
+    ctx.fillRect(x - candleWidth / 2, volumeAreaTop + volumeAreaHeight - h, candleWidth, h);
+  });
+}
+
+function renderIndicatorPanel(candles) {
+  const closes = candles.map(c => c.close);
+  const sma20 = smaSeries(closes, 20);
+  const sma50 = smaSeries(closes, 50);
+  const rsi14 = rsiLatest(closes, 14);
+  const atr14 = atrLatest(candles, 14);
+  const last = candles[candles.length - 1];
+  const el = document.getElementById('indicatorPanel');
+  el.innerHTML = `
+    <div class="stat"><div class="label">現價</div><div class="value">${fmtNum(last.close)}</div></div>
+    <div class="stat"><div class="label">RSI(14)</div><div class="value">${fmtNum(rsi14)}</div></div>
+    <div class="stat"><div class="label">SMA20</div><div class="value">${fmtNum(sma20[sma20.length - 1])}</div></div>
+    <div class="stat"><div class="label">SMA50</div><div class="value">${fmtNum(sma50[sma50.length - 1])}</div></div>
+    <div class="stat"><div class="label">ATR(14)</div><div class="value">${fmtNum(atr14)}</div></div>
+  `;
+  return { sma20, sma50 };
+}
+
+function renderSignalPanel(row) {
+  const el = document.getElementById('signalPanel');
+  if (!row) {
+    el.innerHTML = `
+      <div class="empty">
+        這檔還沒有 AI 判讀資料。先到「自選股 / 盯盤」頁面把 ${symbol} 加入自選股，
+        再按「立即重新分析全部」，資料會存下來（之後每日排程也會自動更新）。
+      </div>`;
+    return null;
+  }
+  const badgeCls = (SIGNAL_CLASS[row.signal] || 'wait');
+  const entryText = (row.entry_low != null && row.entry_high != null)
+    ? `${fmtNum(row.entry_low)} ~ ${fmtNum(row.entry_high)}` : '目前無明確進場區間';
+  el.innerHTML = `
+    <div class="card">
+      <span class="badge ${badgeCls}">${row.signal || '—'}</span>
+      <div class="levels">
+        趨勢：<b>${row.trend || '—'}</b>　MACD柱狀圖：<b>${fmtNum(row.macd_histogram)}</b>　KD：<b>${fmtNum(row.kd_k,{digits:1})}/${fmtNum(row.kd_d,{digits:1})}</b><br>
+        近60日支撐：<b>${fmtNum(row.support)}</b>　近60日壓力：<b>${fmtNum(row.resistance)}</b><br>
+        進場區間：<b>${entryText}</b><br>
+        止損：<b>${fmtNum(row.stop_loss)}</b>　止盈1：<b>${fmtNum(row.take_profit_1)}</b>　止盈2：<b>${fmtNum(row.take_profit_2)}</b>
+      </div>
+      ${row.tv_rating ? `<div class="tv-line">TradingView評級（分析當下，非官方，僅供參考）：<b>${row.tv_rating}</b>（${fmtNum(row.tv_score,{digits:2})}）</div>` : ''}
+      ${row.rationale ? `<div class="rationale">${row.rationale}</div>` : ''}
+      <div class="muted" style="font-size:11px;margin-top:8px;">資料更新於 ${row.updated_at ? new Date(row.updated_at).toLocaleString('zh-TW') : '—'}</div>
+    </div>`;
+  return { entryLow: row.entry_low, entryHigh: row.entry_high, stopLoss: row.stop_loss, takeProfit1: row.take_profit_1, takeProfit2: row.take_profit_2 };
+}
+
+async function loadAll() {
+  document.getElementById('chartWrap').innerHTML = '<div class="loading">讀取K線中…</div>';
+  document.getElementById('indicatorPanel').innerHTML = '<div class="loading">計算中…</div>';
+  document.getElementById('signalPanel').innerHTML = '<div class="loading">讀取中…</div>';
+  try {
+    const [candlesRes, signalsRes] = await Promise.all([
+      fetch('/api/candles?symbol=' + encodeURIComponent(symbol) + '&range=' + currentRange),
+      fetch('/api/signals'),
+    ]);
+    const candlesData = await candlesRes.json();
+    if (!candlesRes.ok) throw new Error(candlesData.error || ('HTTP ' + candlesRes.status));
+    const { signals } = await signalsRes.json();
+    const row = (signals || []).find(s => s.symbol === symbol);
+
+    const candles = candlesData.candles;
+    if (!candles || candles.length < 5) throw new Error('K線資料不足');
+
+    const { sma20, sma50 } = renderIndicatorPanel(candles);
+    const bb = bollingerSeries(candles.map(c => c.close), 20, 2);
+    const levels = renderSignalPanel(row);
+    renderChart(candles, { sma20, sma50, bbUpper: bb.upper, bbLower: bb.lower }, levels);
+  } catch (err) {
+    document.getElementById('chartWrap').innerHTML = `<div class="empty">讀取失敗：${err.message}</div>`;
+  }
+}
+
+async function runBacktestUI() {
+  const el = document.getElementById('backtestResult');
+  const range = document.getElementById('btRange').value;
+  el.innerHTML = '<div class="loading">回測中，資料越長可能要等幾秒…</div>';
+  try {
+    const res = await fetch('/api/backtest?symbol=' + encodeURIComponent(symbol) + '&range=' + range);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+
+    if (data.totalTrades === 0) {
+      el.innerHTML = '<div class="empty">這段期間內沒有觸發任何進場條件，無法產生交易紀錄。</div>';
+      return;
+    }
+
+    const expectClass = data.expectancy > 0 ? 'up' : data.expectancy < 0 ? 'down' : '';
+    el.innerHTML = `
+      <div class="stat-row">
+        <div class="stat"><div class="label">交易次數</div><div class="value">${data.totalTrades}</div></div>
+        <div class="stat"><div class="label">勝率</div><div class="value">${data.winRate}%</div></div>
+        <div class="stat"><div class="label">平均獲利</div><div class="value">+${data.avgWin}%</div></div>
+        <div class="stat"><div class="label">平均虧損</div><div class="value">${data.avgLoss}%</div></div>
+        <div class="stat"><div class="label">期望值／筆</div><div class="value ${expectClass}">${data.expectancy > 0 ? '+' : ''}${data.expectancy}%</div></div>
+      </div>
+      <table style="margin-top:16px;">
+        <thead><tr><th>進場日</th><th>進場價</th><th>出場日</th><th>出場價</th><th>出場原因</th><th>持有天數</th><th>損益%</th></tr></thead>
+        <tbody>
+          ${data.trades.slice().reverse().map(t => `
+            <tr>
+              <td>${t.entryDate}</td><td>${fmtNum(t.entryPrice)}</td>
+              <td>${t.exitDate}</td><td>${fmtNum(t.exitPrice)}</td>
+              <td>${t.reason === 'stop_loss' ? '止損' : t.reason === 'take_profit' ? '止盈' : '逾時出場'}</td>
+              <td>${t.daysHeld}</td>
+              <td class="${changeClass(t.pnlPct)}">${t.pnlPct > 0 ? '+' : ''}${t.pnlPct}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    el.innerHTML = `<div class="empty">回測失敗：${err.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>
