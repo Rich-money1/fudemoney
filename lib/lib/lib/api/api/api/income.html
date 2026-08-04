@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>投資分析網站 · 現金流</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav class="navbar" id="navbarSlot"></nav>
+<main class="main">
+  <div class="page-head"><h1>現金流 / 被動收入</h1></div>
+
+  <div class="disclaimer">
+    以下是根據持倉股數 × 近12個月「已發生」的除息紀錄回推的預估年化現金流，屬於歷史事實回推，
+    不是官方配息日曆，不保證未來配息金額或頻率會維持不變。
+  </div>
+
+  <h2 class="section">收入摘要</h2>
+  <div id="summary" class="stat-row"><div class="loading">讀取中…</div></div>
+
+  <h2 class="section">每月現金流（近12個月）</h2>
+  <div id="monthlyChart"><div class="loading">讀取中…</div></div>
+
+  <h2 class="section">各持倉配息明細</h2>
+  <div id="table"><div class="loading">讀取中…</div></div>
+</main>
+
+<script src="/shared.js"></script>
+<script>
+mountNavbar('income');
+
+async function load() {
+  const summaryEl = document.getElementById('summary');
+  const chartEl = document.getElementById('monthlyChart');
+  const tableEl = document.getElementById('table');
+  try {
+    const res = await fetch('/api/income');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+
+    if (!data.holdings || data.holdings.length === 0) {
+      summaryEl.innerHTML = '<div class="empty">尚未新增任何持倉，去「持倉」頁面加一筆吧。</div>';
+      chartEl.innerHTML = '';
+      tableEl.innerHTML = '';
+      return;
+    }
+
+    const avgYield = data.holdings.filter(h => h.yieldPct != null);
+    const blendedYield = avgYield.length ? avgYield.reduce((a, h) => a + h.yieldPct, 0) / avgYield.length : null;
+
+    summaryEl.innerHTML = `
+      <div class="stat"><div class="label">預估年化收入</div><div class="value">${fmtNum(data.totalAnnualIncome, {digits:0})}</div></div>
+      <div class="stat"><div class="label">預估月均收入</div><div class="value">${fmtNum(data.totalAnnualIncome / 12, {digits:0})}</div></div>
+      <div class="stat"><div class="label">平均殖利率（簡單平均）</div><div class="value">${blendedYield != null ? blendedYield.toFixed(2) + '%' : '—'}</div></div>
+    `;
+
+    const months = Object.keys(data.monthly).sort();
+    const maxVal = Math.max(...months.map(m => data.monthly[m]), 1);
+    chartEl.innerHTML = months.length === 0
+      ? '<div class="empty">近12個月沒有偵測到配息紀錄。</div>'
+      : `<div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));">` +
+        months.map(m => {
+          const v = data.monthly[m];
+          const h = Math.max(4, (v / maxVal) * 90);
+          return `
+            <div class="card" style="padding:10px 8px;text-align:center;">
+              <div style="height:90px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:6px;">
+                <div style="width:60%;height:${h}px;background:var(--gold);border-radius:3px;"></div>
+              </div>
+              <div style="font-size:11px;color:var(--muted);">${m}</div>
+              <div style="font-size:12px;font-weight:700;">${fmtNum(v,{digits:0})}</div>
+            </div>`;
+        }).join('') + `</div>`;
+
+    tableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>代碼</th><th>名稱</th><th>股數</th><th>現價</th><th>近12月每股配息</th><th>殖利率</th><th>預估年收入</th>
+        </tr></thead>
+        <tbody>
+          ${data.holdings.map(h => `
+            <tr>
+              <td><a href="/chart.html?symbol=${encodeURIComponent(h.symbol)}">${h.symbol}</a></td>
+              <td>${h.name}</td>
+              <td>${fmtNum(h.quantity)}</td>
+              <td>${fmtNum(h.price)}</td>
+              <td>${fmtNum(h.perShareTrailing12mo)}</td>
+              <td>${h.yieldPct != null ? h.yieldPct.toFixed(2) + '%' : '—'}</td>
+              <td>${fmtNum(h.annualIncome, {digits:0})}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    summaryEl.innerHTML = `<div class="empty">讀取失敗：${err.message}</div>`;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
