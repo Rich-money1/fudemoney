@@ -71,9 +71,35 @@
   .levels b { color: var(--text); font-weight: 600; }
   .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; }
   .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
+
+  .auth-box { max-width: 360px; margin: 80px auto; padding: 28px 26px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+  .auth-box h2 { font-size: 16px; margin: 0 0 4px; }
+  .auth-box p.hint { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
+  .auth-box input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #0e1117; color: var(--text); font-size: 13.5px; }
+  .auth-box button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--gold); background: rgba(212,175,106,0.12); color: var(--gold); font-size: 14px; cursor: pointer; margin-top: 4px; }
+  .auth-box button:hover { background: rgba(212,175,106,0.22); }
+  .auth-box button:disabled { opacity: 0.5; cursor: default; }
+  .auth-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; }
+  .auth-msg.error { color: var(--up); }
+  .auth-msg.info { color: var(--muted); }
+  .top-actions { max-width: 1080px; margin: 0 auto 8px; text-align: right; }
+  .top-actions button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .top-actions button:hover { border-color: var(--gold); color: var(--gold); }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
+<div id="authView" class="auth-box">
+  <h2>富得財富管理 <span style="color:var(--gold);">· 盯盤智能助理</span></h2>
+  <p class="hint">僅提供已繳費開通之顧問帳號使用，請登入。</p>
+  <input id="authEmail" type="email" placeholder="帳號 Email" autocomplete="username">
+  <input id="authPassword" type="password" placeholder="密碼" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+  <button id="authSubmitBtn" onclick="handleLogin()">登入</button>
+  <div id="authMsg" class="auth-msg"></div>
+</div>
+
+<div id="appView" class="hidden">
+<div class="top-actions"><button onclick="handleLogout()">登出</button></div>
 <header>
   <h1>富得財富管理 <span>· 盯盤智能助理</span></h1>
   <p class="subtitle">技術指標規則計算進場/止損/止盈錨點，AI 僅在錨點基礎上做文字判讀 — 顧問內部參考用</p>
@@ -90,7 +116,9 @@
 </div>
 
 <div id="content" class="loading">讀取盯盤資料中…</div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const GROUP_LABELS = { TW: '台股個股', US: '美股個股', INDEX: '大盤指數', FX: '匯率', METAL: '貴金屬' };
 const GROUP_ORDER = ['TW', 'US', 'INDEX', 'FX', 'METAL'];
@@ -140,7 +168,18 @@ async function load() {
   content.className = 'loading';
   content.textContent = '讀取盯盤資料中…';
   try {
-    const res = await fetch('/api/trading-signals');
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { showAuthView('登入已過期，請重新登入'); return; }
+    const res = await fetch('/api/trading-signals', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    if (res.status === 401) { showAuthView('登入已過期，請重新登入'); return; }
+    if (res.status === 403) {
+      content.className = 'empty';
+      content.textContent = '帳號尚未開通，請聯繫管理者確認繳費狀態。';
+      updatedAt.textContent = '';
+      return;
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const { signals } = await res.json();
 
@@ -170,7 +209,95 @@ async function load() {
   }
 }
 
-load();
+/* ── 登入/身份驗證：跟系統其他頁面共用同一套 Supabase Auth + profiles(status) 帳號體系，
+   只有 status=active（已繳費開通）的顧問能看到盯盤內容，帳號本身在既有的顧問管理流程建立。 */
+let supabaseClient = null;
+
+function showAuthView(msg) {
+  document.getElementById('appView').classList.add('hidden');
+  document.getElementById('authView').classList.remove('hidden');
+  const msgEl = document.getElementById('authMsg');
+  msgEl.textContent = msg || '';
+  msgEl.className = 'auth-msg' + (msg ? ' error' : '');
+}
+
+function showAppView() {
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+}
+
+async function handleLogin() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+  const msgEl = document.getElementById('authMsg');
+  if (!email || !password) {
+    msgEl.textContent = '請輸入帳號與密碼';
+    msgEl.className = 'auth-msg error';
+    return;
+  }
+  btn.disabled = true;
+  msgEl.textContent = '登入中…';
+  msgEl.className = 'auth-msg info';
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    await afterAuth();
+  } catch (err) {
+    msgEl.textContent = '登入失敗：帳號或密碼錯誤';
+    msgEl.className = 'auth-msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleLogout() {
+  await supabaseClient.auth.signOut();
+  showAuthView();
+}
+
+/* 登入成功後檢查 profiles.status，未開通(pending)或已停權(disabled)一律擋下，不進入儀表板 */
+async function afterAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) { showAuthView(); return; }
+  const { data: profile, error } = await supabaseClient
+    .from('profiles')
+    .select('status')
+    .eq('id', session.user.id)
+    .single();
+  if (error || !profile) {
+    showAuthView('讀取帳號資料失敗，請重新登入');
+    return;
+  }
+  if (profile.status !== 'active') {
+    showAuthView(profile.status === 'disabled' ? '帳號已停權，請聯繫管理者' : '帳號尚未開通，請聯繫管理者確認繳費狀態');
+    return;
+  }
+  showAppView();
+  load();
+}
+
+async function initAuth() {
+  try {
+    const res = await fetch('/api/public-config');
+    const { supabaseUrl, supabaseAnonKey } = await res.json();
+    if (!supabaseUrl || !supabaseAnonKey) {
+      showAuthView('系統尚未設定登入功能，請聯繫管理者');
+      return;
+    }
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      await afterAuth();
+    } else {
+      showAuthView();
+    }
+  } catch (err) {
+    showAuthView('初始化失敗：' + err.message);
+  }
+}
+
+initAuth();
 </script>
 </body>
 </html>
