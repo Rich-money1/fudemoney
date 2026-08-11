@@ -34,12 +34,12 @@
     border-radius: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.6;
   }
   .meta {
-    max-width: 1080px; margin: 0 auto 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between;
+    max-width: 1080px; margin: 0 auto 12px; display: flex; justify-content: space-between;
     align-items: center; font-size: 12.5px; color: var(--muted);
   }
   #refreshBtn {
     background: transparent; border: 1px solid var(--border); color: var(--text);
-    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; min-height: 36px;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px;
   }
   #refreshBtn:hover { border-color: var(--gold); color: var(--gold); }
   .group { max-width: 1080px; margin: 0 auto 28px; }
@@ -47,15 +47,15 @@
     font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 12px;
   }
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
     padding: 14px 16px;
   }
-  .card-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 4px; }
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
   .card-name { font-size: 15px; font-weight: 600; }
   .card-symbol { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
-  .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin-bottom: 10px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
   .price { font-size: 20px; font-weight: 700; }
   .change.up { color: var(--up); }
   .change.down { color: var(--down); }
@@ -118,8 +118,8 @@
   .auth-box { max-width: 360px; margin: 80px auto; padding: 28px 26px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
   .auth-box h2 { font-size: 16px; margin: 0 0 4px; }
   .auth-box p.hint { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
-  .auth-box input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 11px 12px; border-radius: 6px; border: 1px solid var(--border); background: #0e1117; color: var(--text); font-size: 16px; }
-  .auth-box button { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--gold); background: rgba(212,175,106,0.12); color: var(--gold); font-size: 15px; cursor: pointer; margin-top: 4px; }
+  .auth-box input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #0e1117; color: var(--text); font-size: 13.5px; }
+  .auth-box button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--gold); background: rgba(212,175,106,0.12); color: var(--gold); font-size: 14px; cursor: pointer; margin-top: 4px; }
   .auth-box button:hover { background: rgba(212,175,106,0.22); }
   .auth-box button:disabled { opacity: 0.5; cursor: default; }
   .auth-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; }
@@ -128,18 +128,33 @@
   .top-actions { max-width: 1080px; margin: 0 auto 8px; text-align: right; }
   .top-actions button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
   .top-actions button:hover { border-color: var(--gold); color: var(--gold); }
-  .top-actions button { min-height: 34px; }
   .hidden { display: none !important; }
+  .mobile-menu-wrap { display: none; }
 
+  /* ══ 以下只在手機寬度(≤600px)套用，桌面版排版維持跟原本一模一樣 ══ */
   @media (max-width: 600px) {
     body { padding: 16px 12px 48px; }
     h1 { font-size: 19px; }
     .auth-box { margin: 32px auto; padding: 22px 18px; max-width: 100%; }
+    .auth-box input { font-size: 16px; padding: 11px 12px; }
+    .auth-box button { padding: 12px; font-size: 15px; }
+    .cards { grid-template-columns: 1fr; }
+    .card-top { flex-wrap: wrap; gap: 4px; }
+    .price-row { flex-wrap: wrap; gap: 6px 8px; }
+    .meta { flex-wrap: wrap; gap: 8px; }
     .vt-summary { grid-template-columns: repeat(2, 1fr); }
     .vt-stat .value { font-size: 16px; }
     table.vt-table th, table.vt-table td { padding: 7px 9px; font-size: 12px; }
-    .top-actions { text-align: center; }
-    .top-actions button, #refreshBtn { min-height: 40px; padding-left: 18px; padding-right: 18px; }
+
+    /* 手機版把「登出」「重新整理」收進上方的選單按鈕，桌面版仍是各自獨立的按鈕不受影響 */
+    .top-actions { display: none; }
+    #refreshBtn { display: none; }
+    .mobile-menu-wrap { display: block; position: relative; max-width: 1080px; margin: 0 auto 12px; text-align: right; }
+    .mobile-menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 6px; font-size: 13px; min-height: 40px; cursor: pointer; }
+    .mobile-menu-dropdown { position: absolute; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-width: 150px; z-index: 20; text-align: left; }
+    .mobile-menu-dropdown button { display: block; width: 100%; text-align: left; padding: 12px 16px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; cursor: pointer; }
+    .mobile-menu-dropdown button:last-child { border-bottom: none; }
+    .mobile-menu-dropdown button:hover { color: var(--gold); }
   }
 </style>
 </head>
@@ -155,6 +170,13 @@
 
 <div id="appView" class="hidden">
 <div class="top-actions"><button onclick="handleLogout()">登出</button></div>
+<div class="mobile-menu-wrap">
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰ 選單</button>
+  <div id="mobileMenuDropdown" class="mobile-menu-dropdown hidden">
+    <button onclick="load();loadVirtualTrades();loadFundFlow();closeMobileMenu();">重新整理</button>
+    <button onclick="handleLogout()">登出</button>
+  </div>
+</div>
 <header>
   <h1>富得財富管理 <span>· 盯盤智能助理</span></h1>
   <p class="subtitle">技術指標規則計算進場/止損/止盈錨點，AI 僅在錨點基礎上做文字判讀 — 顧問內部參考用</p>
@@ -274,6 +296,17 @@ async function load() {
     content.textContent = '讀取失敗：' + err.message;
   }
 }
+
+function toggleMobileMenu() {
+  document.getElementById('mobileMenuDropdown').classList.toggle('hidden');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenuDropdown').classList.add('hidden');
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.mobile-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMobileMenu();
+});
 
 const VT_STATUS_LABEL = { open: '持倉中', win_tp1: '止盈1出場', win_tp2: '止盈2出場', loss_stop: '止損出場' };
 const VT_STATUS_CLASS = { open: 'open', win_tp1: 'win', win_tp2: 'win', loss_stop: 'loss' };
