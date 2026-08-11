@@ -2,7 +2,6 @@ const { supabase } = require('../lib/supabase');
 const { pushMessage } = require('../lib/line');
 const { FUNDS, FUND_APPROX_DAY, findFund } = require('../lib/funds');
 const { runDailyReport } = require('../lib/dailyReport');
-const { runIgPublish } = require('../lib/publishIgPosts');
 
 function fmt(n) {
   return Math.round(n).toLocaleString('zh-TW');
@@ -104,14 +103,5 @@ module.exports = async (req, res) => {
     dailyReportResult = { error: err.message };
   }
 
-  // IG 排程貼文自動發布，同樣併入每日排程，避免超過 Vercel Hobby 方案排程數量上限
-  let igPublishResult = null;
-  try {
-    igPublishResult = await runIgPublish();
-  } catch (err) {
-    console.error('IG 排程發文失敗', err);
-    igPublishResult = { error: err.message };
-  }
-
-  res.status(200).json({ date: todayStr, sentCount, results, dailyReportResult, igPublishResult });
+  res.status(200).json({ date: todayStr, sentCount, results, dailyReportResult });
 };
