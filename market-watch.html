@@ -72,6 +72,28 @@
   .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; }
   .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
 
+  .vt-section { max-width: 1080px; margin: 0 auto 32px; }
+  .vt-section h2 {
+    font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 12px;
+  }
+  .vt-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .vt-stat { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+  .vt-stat .label { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .vt-stat .value { font-size: 18px; font-weight: 700; }
+  .vt-stat .value.up { color: var(--up); }
+  .vt-stat .value.down { color: var(--down); }
+  .vt-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table.vt-table { width: 100%; border-collapse: collapse; font-size: 12.5px; white-space: nowrap; }
+  table.vt-table th, table.vt-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.vt-table th { color: var(--muted); font-weight: 600; background: var(--panel); }
+  table.vt-table td.pnl.up { color: var(--up); }
+  table.vt-table td.pnl.down { color: var(--down); }
+  .vt-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+  .vt-badge.open { color: var(--gold); border-color: #6b5527; }
+  .vt-badge.win { color: var(--up); border-color: #5a2a2c; }
+  .vt-badge.loss { color: var(--down); border-color: #1f5a34; }
+
   .auth-box { max-width: 360px; margin: 80px auto; padding: 28px 26px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
   .auth-box h2 { font-size: 16px; margin: 0 0 4px; }
   .auth-box p.hint { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
@@ -112,10 +134,15 @@
 
 <div class="meta">
   <span id="updatedAt">載入中…</span>
-  <button id="refreshBtn" onclick="load()">重新整理</button>
+  <button id="refreshBtn" onclick="load();loadVirtualTrades();">重新整理</button>
 </div>
 
 <div id="content" class="loading">讀取盯盤資料中…</div>
+
+<div class="vt-section">
+  <h2>虛擬倉績效（每倉固定10萬台幣，測試訊號勝率用）</h2>
+  <div id="vtContent" class="loading">讀取虛擬倉資料中…</div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -209,6 +236,78 @@ async function load() {
   }
 }
 
+const VT_STATUS_LABEL = { open: '持倉中', win_tp1: '止盈1出場', win_tp2: '止盈2出場', loss_stop: '止損出場' };
+const VT_STATUS_CLASS = { open: 'open', win_tp1: 'win', win_tp2: 'win', loss_stop: 'loss' };
+
+function fmtTwd(v) {
+  if (v == null) return '—';
+  const sign = v > 0 ? '+' : '';
+  return sign + Math.round(v).toLocaleString('zh-TW');
+}
+
+function fmtPct(v) {
+  if (v == null) return '—';
+  return (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+}
+
+function renderVtRow(t) {
+  const badgeCls = VT_STATUS_CLASS[t.status] || 'open';
+  const pnlCls = t.pnl_percent > 0 ? 'up' : t.pnl_percent < 0 ? 'down' : '';
+  return `
+    <tr>
+      <td>${t.name}<span style="color:var(--muted);margin-left:4px;">${t.symbol}</span></td>
+      <td><span class="vt-badge ${badgeCls}">${VT_STATUS_LABEL[t.status] || t.status}</span></td>
+      <td>${t.entry_date || '—'}　${fmtNum(t.entry_price)}</td>
+      <td>${t.exit_date || '—'}　${fmtNum(t.exit_price)}</td>
+      <td class="pnl ${pnlCls}">${fmtPct(t.pnl_percent)}</td>
+      <td class="pnl ${pnlCls}">${fmtTwd(t.pnl_twd)}</td>
+    </tr>`;
+}
+
+async function loadVirtualTrades() {
+  const el = document.getElementById('vtContent');
+  el.className = 'loading';
+  el.textContent = '讀取虛擬倉資料中…';
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    const res = await fetch('/api/virtual-trades', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    if (res.status === 401) { showAuthView('登入已過期，請重新登入'); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { trades, summary } = await res.json();
+
+    if (!trades || trades.length === 0) {
+      el.className = 'empty';
+      el.textContent = '尚無虛擬倉紀錄，出現「買進區間」訊號時會自動開倉。';
+      return;
+    }
+
+    const winRateCls = summary.winRate == null ? '' : summary.winRate >= 50 ? 'up' : 'down';
+    const pnlCls = summary.totalPnlTwd > 0 ? 'up' : summary.totalPnlTwd < 0 ? 'down' : '';
+    el.className = '';
+    el.innerHTML = `
+      <div class="vt-summary">
+        <div class="vt-stat"><div class="label">持倉中</div><div class="value">${summary.openCount}</div></div>
+        <div class="vt-stat"><div class="label">已平倉</div><div class="value">${summary.closedCount}</div></div>
+        <div class="vt-stat"><div class="label">勝率</div><div class="value ${winRateCls}">${summary.winRate != null ? summary.winRate + '%' : '—'}</div></div>
+        <div class="vt-stat"><div class="label">勝/敗</div><div class="value">${summary.winCount} / ${summary.lossCount}</div></div>
+        <div class="vt-stat"><div class="label">累計損益</div><div class="value ${pnlCls}">${fmtTwd(summary.totalPnlTwd)}</div></div>
+        <div class="vt-stat"><div class="label">平均報酬</div><div class="value ${pnlCls}">${fmtPct(summary.avgPnlPercent)}</div></div>
+      </div>
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead><tr><th>標的</th><th>狀態</th><th>進場</th><th>出場</th><th>報酬%</th><th>損益(TWD)</th></tr></thead>
+          <tbody>${trades.map(renderVtRow).join('')}</tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    el.className = 'empty';
+    el.textContent = '讀取失敗：' + err.message;
+  }
+}
+
 /* ── 登入/身份驗證：跟系統其他頁面共用同一套 Supabase Auth + profiles(status) 帳號體系，
    只有 status=active（已繳費開通）的顧問能看到盯盤內容，帳號本身在既有的顧問管理流程建立。 */
 let supabaseClient = null;
@@ -275,6 +374,7 @@ async function afterAuth() {
   }
   showAppView();
   load();
+  loadVirtualTrades();
 }
 
 async function initAuth() {
