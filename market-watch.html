@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>盯盤智能助理 · 富得財富管理</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --border: #232733;
+    --gold: #d4af6a;
+    --text: #e8e8ec;
+    --muted: #8a8f9c;
+    --up: #e5484d;   /* 台股習慣紅漲綠跌 */
+    --down: #2fb35a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
+    padding: 24px 16px 64px;
+  }
+  header { max-width: 1080px; margin: 0 auto 20px; }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: 0.02em; }
+  h1 span { color: var(--gold); }
+  .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .disclaimer {
+    max-width: 1080px; margin: 16px auto; padding: 12px 16px;
+    border: 1px solid var(--border); border-left: 3px solid var(--gold);
+    border-radius: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.6;
+  }
+  .meta {
+    max-width: 1080px; margin: 0 auto 12px; display: flex; justify-content: space-between;
+    align-items: center; font-size: 12.5px; color: var(--muted);
+  }
+  #refreshBtn {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px;
+  }
+  #refreshBtn:hover { border-color: var(--gold); color: var(--gold); }
+  .group { max-width: 1080px; margin: 0 auto 28px; }
+  .group h2 {
+    font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 12px;
+  }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .card-name { font-size: 15px; font-weight: 600; }
+  .card-symbol { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .price { font-size: 20px; font-weight: 700; }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+  .badge {
+    display: inline-block; font-size: 11.5px; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--border); margin-bottom: 10px;
+  }
+  .badge.buy { color: #ffcf87; border-color: #6b5527; background: rgba(212,175,106,0.08); }
+  .badge.wait { color: var(--muted); }
+  .badge.avoid, .badge.stopped { color: var(--up); border-color: #5a2a2c; }
+  .badge.range { color: var(--muted); }
+  .levels { font-size: 12.5px; color: var(--muted); line-height: 1.9; margin-bottom: 8px; }
+  .levels b { color: var(--text); font-weight: 600; }
+  .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; }
+  .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
+
+  .vt-section { max-width: 1080px; margin: 0 auto 32px; }
+  .vt-section h2 {
+    font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 12px;
+  }
+  .vt-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .vt-stat { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+  .vt-stat .label { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .vt-stat .value { font-size: 18px; font-weight: 700; }
+  .vt-stat .value.up { color: var(--up); }
+  .vt-stat .value.down { color: var(--down); }
+  .vt-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table.vt-table { width: 100%; border-collapse: collapse; font-size: 12.5px; white-space: nowrap; }
+  table.vt-table th, table.vt-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.vt-table th { color: var(--muted); font-weight: 600; background: var(--panel); }
+  table.vt-table td.pnl.up { color: var(--up); }
+  table.vt-table td.pnl.down { color: var(--down); }
+  .vt-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+  .vt-badge.open { color: var(--gold); border-color: #6b5527; }
+  .vt-badge.win { color: var(--up); border-color: #5a2a2c; }
+  .vt-badge.loss { color: var(--down); border-color: #1f5a34; }
+
+  .ff-section { max-width: 1080px; margin: 0 auto 32px; }
+  .ff-section h2 {
+    font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 0 0 4px;
+  }
+  .ff-hint { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+  .ff-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 16px; }
+  .ff-group { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .ff-group h3 { font-size: 13px; color: var(--text); margin: 0 0 10px; font-weight: 600; }
+  .ff-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12.5px; }
+  .ff-row:last-child { border-bottom: none; }
+  .ff-sector { color: var(--text); }
+  .ff-right { display: flex; align-items: center; gap: 8px; }
+  .ff-bar-wrap { width: 60px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .ff-bar { height: 100%; background: var(--gold); }
+  .ff-rate { font-weight: 700; min-width: 46px; text-align: right; }
+  .ff-delta { font-size: 11px; min-width: 32px; text-align: right; }
+  .ff-delta.up { color: var(--up); }
+  .ff-delta.down { color: var(--down); }
+  .ff-delta.flat { color: var(--muted); }
+
+  .auth-box { max-width: 360px; margin: 80px auto; padding: 28px 26px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+  .auth-box h2 { font-size: 16px; margin: 0 0 4px; }
+  .auth-box p.hint { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
+  .auth-box input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #0e1117; color: var(--text); font-size: 13.5px; }
+  .auth-box button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--gold); background: rgba(212,175,106,0.12); color: var(--gold); font-size: 14px; cursor: pointer; margin-top: 4px; }
+  .auth-box button:hover { background: rgba(212,175,106,0.22); }
+  .auth-box button:disabled { opacity: 0.5; cursor: default; }
+  .auth-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; }
+  .auth-msg.error { color: var(--up); }
+  .auth-msg.info { color: var(--muted); }
+  .top-actions { max-width: 1080px; margin: 0 auto 8px; text-align: right; }
+  .top-actions button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .top-actions button:hover { border-color: var(--gold); color: var(--gold); }
+  .hidden { display: none !important; }
+  .mobile-menu-wrap { display: none; }
+
+  /* ══ 以下只在手機寬度(≤600px)套用，桌面版排版維持跟原本一模一樣 ══ */
+  @media (max-width: 600px) {
+    body { padding: 16px 12px 48px; }
+    h1 { font-size: 19px; }
+    .auth-box { margin: 32px auto; padding: 22px 18px; max-width: 100%; }
+    .auth-box input { font-size: 16px; padding: 11px 12px; }
+    .auth-box button { padding: 12px; font-size: 15px; }
+    .cards { grid-template-columns: 1fr; }
+    .card-top { flex-wrap: wrap; gap: 4px; }
+    .price-row { flex-wrap: wrap; gap: 6px 8px; }
+    .meta { flex-wrap: wrap; gap: 8px; }
+    .vt-summary { grid-template-columns: repeat(2, 1fr); }
+    .vt-stat .value { font-size: 16px; }
+    table.vt-table th, table.vt-table td { padding: 7px 9px; font-size: 12px; }
+
+    /* 手機版把「登出」「重新整理」收進上方的選單按鈕，桌面版仍是各自獨立的按鈕不受影響 */
+    .top-actions { display: none; }
+    #refreshBtn { display: none; }
+    .mobile-menu-wrap { display: block; position: relative; max-width: 1080px; margin: 0 auto 12px; text-align: right; }
+    .mobile-menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 6px; font-size: 13px; min-height: 40px; cursor: pointer; }
+    .mobile-menu-dropdown { position: absolute; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-width: 150px; z-index: 20; text-align: left; }
+    .mobile-menu-dropdown button { display: block; width: 100%; text-align: left; padding: 12px 16px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; cursor: pointer; }
+    .mobile-menu-dropdown button:last-child { border-bottom: none; }
+    .mobile-menu-dropdown button:hover { color: var(--gold); }
+  }
+</style>
+</head>
+<body>
+<div id="authView" class="auth-box">
+  <h2>富得財富管理 <span style="color:var(--gold);">· 盯盤智能助理</span></h2>
+  <p class="hint">僅提供已繳費開通之顧問帳號使用，請登入。</p>
+  <input id="authEmail" type="email" placeholder="帳號 Email" autocomplete="username">
+  <input id="authPassword" type="password" placeholder="密碼" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+  <button id="authSubmitBtn" onclick="handleLogin()">登入</button>
+  <div id="authMsg" class="auth-msg"></div>
+</div>
+
+<div id="appView" class="hidden">
+<div class="top-actions"><button onclick="handleLogout()">登出</button></div>
+<div class="mobile-menu-wrap">
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰ 選單</button>
+  <div id="mobileMenuDropdown" class="mobile-menu-dropdown hidden">
+    <button onclick="load();loadVirtualTrades();loadFundFlow();closeMobileMenu();">重新整理</button>
+    <button onclick="handleLogout()">登出</button>
+  </div>
+</div>
+<header>
+  <h1>富得財富管理 <span>· 盯盤智能助理</span></h1>
+  <p class="subtitle">技術指標規則計算進場/止損/止盈錨點，AI 僅在錨點基礎上做文字判讀 — 顧問內部參考用</p>
+</header>
+
+<div class="disclaimer">
+  本頁面僅供持牌顧問內部盯盤參考，並非投資建議、招攬或要約。所有進場區間、止損、止盈皆為系統依技術指標規則計算之風險管理參考值，
+  非保證獲利，市場實際走勢可能大幅偏離。資料每日排程更新一次，非即時報價。
+</div>
+
+<div class="meta">
+  <span id="updatedAt">載入中…</span>
+  <button id="refreshBtn" onclick="load();loadVirtualTrades();loadFundFlow();">重新整理</button>
+</div>
+
+<div id="content" class="loading">讀取盯盤資料中…</div>
+
+<div class="vt-section">
+  <h2>虛擬倉績效（每倉固定10萬台幣，測試訊號勝率用）</h2>
+  <div id="vtContent" class="loading">讀取虛擬倉資料中…</div>
+</div>
+
+<div class="ff-section">
+  <h2>類股資金流向</h2>
+  <p class="ff-hint">流向率＝該類股成交金額佔當日大盤總成交金額比重，數字越高代表資金越集中；箭頭為與前一交易日比較。資料來源：富邦e點通，每日排程更新。</p>
+  <div id="ffContent" class="loading">讀取資金流向資料中…</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const GROUP_LABELS = { TW: '台股個股', US: '美股個股', CRYPTO: '加密貨幣', INDEX: '大盤指數', FX: '匯率', METAL: '貴金屬' };
+const GROUP_ORDER = ['TW', 'US', 'CRYPTO', 'INDEX', 'FX', 'METAL'];
+const SIGNAL_CLASS = {
+  '買進區間': 'buy',
+  '觀望': 'wait',
+  '避免追高': 'avoid',
+  '跌破止損': 'stopped',
+  '盤整': 'range',
+};
+
+function fmtNum(v) {
+  if (v == null) return '—';
+  const n = Number(v);
+  return n.toLocaleString('zh-TW', { maximumFractionDigits: n < 10 ? 4 : 2 });
+}
+
+function renderCard(row) {
+  const changeCls = row.change_percent > 0 ? 'up' : row.change_percent < 0 ? 'down' : '';
+  const changeSign = row.change_percent > 0 ? '+' : '';
+  const badgeCls = SIGNAL_CLASS[row.signal] || 'wait';
+  const entryText = (row.entry_low != null && row.entry_high != null)
+    ? `${fmtNum(row.entry_low)} ~ ${fmtNum(row.entry_high)}` : '目前無明確進場區間';
+
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div><span class="card-name">${row.name}</span><span class="card-symbol">${row.symbol}</span></div>
+      </div>
+      <div class="price-row">
+        <span class="price">${fmtNum(row.price)}</span>
+        <span class="change ${changeCls}">${changeSign}${row.change_percent != null ? row.change_percent : '—'}%</span>
+        <span style="color:var(--muted);font-size:12px;">${row.trend || ''} · RSI ${fmtNum(row.rsi14)}</span>
+      </div>
+      <span class="badge ${badgeCls}">${row.signal || '—'}</span>
+      <div class="levels">
+        進場區間：<b>${entryText}</b><br>
+        止損：<b>${fmtNum(row.stop_loss)}</b>　止盈1：<b>${fmtNum(row.take_profit_1)}</b>　止盈2：<b>${fmtNum(row.take_profit_2)}</b>
+      </div>
+      ${row.rationale ? `<div class="rationale">${row.rationale}</div>` : ''}
+    </div>`;
+}
+
+async function load() {
+  const content = document.getElementById('content');
+  const updatedAt = document.getElementById('updatedAt');
+  content.className = 'loading';
+  content.textContent = '讀取盯盤資料中…';
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { showAuthView('登入已過期，請重新登入'); return; }
+    const res = await fetch('/api/trading-signals', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    if (res.status === 401) { showAuthView('登入已過期，請重新登入'); return; }
+    if (res.status === 403) {
+      content.className = 'empty';
+      content.textContent = '帳號尚未開通，請聯繫管理者確認繳費狀態。';
+      updatedAt.textContent = '';
+      return;
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { signals } = await res.json();
+
+    if (!signals || signals.length === 0) {
+      content.className = 'empty';
+      content.textContent = '尚無盯盤資料，請確認排程 /api/update-trading-signals 已執行過。';
+      updatedAt.textContent = '';
+      return;
+    }
+
+    const latest = signals.reduce((max, s) => s.updated_at > max ? s.updated_at : max, signals[0].updated_at);
+    updatedAt.textContent = '資料更新於：' + new Date(latest).toLocaleString('zh-TW');
+
+    const groups = {};
+    signals.forEach(s => { (groups[s.market] = groups[s.market] || []).push(s); });
+
+    content.className = '';
+    content.innerHTML = GROUP_ORDER.filter(g => groups[g]).map(g => `
+      <div class="group">
+        <h2>${GROUP_LABELS[g] || g}</h2>
+        <div class="cards">${groups[g].map(renderCard).join('')}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    content.className = 'empty';
+    content.textContent = '讀取失敗：' + err.message;
+  }
+}
+
+function toggleMobileMenu() {
+  document.getElementById('mobileMenuDropdown').classList.toggle('hidden');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenuDropdown').classList.add('hidden');
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.mobile-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMobileMenu();
+});
+
+const VT_STATUS_LABEL = { open: '持倉中', win_tp1: '止盈1出場', win_tp2: '止盈2出場', loss_stop: '止損出場' };
+const VT_STATUS_CLASS = { open: 'open', win_tp1: 'win', win_tp2: 'win', loss_stop: 'loss' };
+
+function fmtTwd(v) {
+  if (v == null) return '—';
+  const sign = v > 0 ? '+' : '';
+  return sign + Math.round(v).toLocaleString('zh-TW');
+}
+
+function fmtPct(v) {
+  if (v == null) return '—';
+  return (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+}
+
+function renderVtRow(t) {
+  const badgeCls = VT_STATUS_CLASS[t.status] || 'open';
+  const pnlCls = t.pnl_percent > 0 ? 'up' : t.pnl_percent < 0 ? 'down' : '';
+  return `
+    <tr>
+      <td>${t.name}<span style="color:var(--muted);margin-left:4px;">${t.symbol}</span></td>
+      <td><span class="vt-badge ${badgeCls}">${VT_STATUS_LABEL[t.status] || t.status}</span></td>
+      <td>${t.entry_date || '—'}　${fmtNum(t.entry_price)}</td>
+      <td>${t.exit_date || '—'}　${fmtNum(t.exit_price)}</td>
+      <td class="pnl ${pnlCls}">${fmtPct(t.pnl_percent)}</td>
+      <td class="pnl ${pnlCls}">${fmtTwd(t.pnl_twd)}</td>
+    </tr>`;
+}
+
+async function loadVirtualTrades() {
+  const el = document.getElementById('vtContent');
+  el.className = 'loading';
+  el.textContent = '讀取虛擬倉資料中…';
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    const res = await fetch('/api/virtual-trades', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    if (res.status === 401) { showAuthView('登入已過期，請重新登入'); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { trades, summary } = await res.json();
+
+    if (!trades || trades.length === 0) {
+      el.className = 'empty';
+      el.textContent = '尚無虛擬倉紀錄，出現「買進區間」訊號時會自動開倉。';
+      return;
+    }
+
+    const winRateCls = summary.winRate == null ? '' : summary.winRate >= 50 ? 'up' : 'down';
+    const pnlCls = summary.totalPnlTwd > 0 ? 'up' : summary.totalPnlTwd < 0 ? 'down' : '';
+    el.className = '';
+    el.innerHTML = `
+      <div class="vt-summary">
+        <div class="vt-stat"><div class="label">持倉中</div><div class="value">${summary.openCount}</div></div>
+        <div class="vt-stat"><div class="label">已平倉</div><div class="value">${summary.closedCount}</div></div>
+        <div class="vt-stat"><div class="label">勝率</div><div class="value ${winRateCls}">${summary.winRate != null ? summary.winRate + '%' : '—'}</div></div>
+        <div class="vt-stat"><div class="label">勝/敗</div><div class="value">${summary.winCount} / ${summary.lossCount}</div></div>
+        <div class="vt-stat"><div class="label">累計損益</div><div class="value ${pnlCls}">${fmtTwd(summary.totalPnlTwd)}</div></div>
+        <div class="vt-stat"><div class="label">平均報酬</div><div class="value ${pnlCls}">${fmtPct(summary.avgPnlPercent)}</div></div>
+      </div>
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead><tr><th>標的</th><th>狀態</th><th>進場</th><th>出場</th><th>報酬%</th><th>損益(TWD)</th></tr></thead>
+          <tbody>${trades.map(renderVtRow).join('')}</tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    el.className = 'empty';
+    el.textContent = '讀取失敗：' + err.message;
+  }
+}
+
+const FF_MARKET_LABEL = { TSE: '上市', OTC: '上櫃' };
+
+function renderFfRow(row) {
+  const barPct = Math.min(100, row.flow_rate);
+  let deltaHtml = '<span class="ff-delta flat">—</span>';
+  if (row.prev_flow_rate != null) {
+    const diff = +(row.flow_rate - row.prev_flow_rate).toFixed(2);
+    const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+    const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
+    deltaHtml = `<span class="ff-delta ${cls}">${arrow}${diff !== 0 ? Math.abs(diff).toFixed(2) : ''}</span>`;
+  }
+  return `
+    <div class="ff-row">
+      <span class="ff-sector">${row.sector}</span>
+      <span class="ff-right">
+        <span class="ff-bar-wrap"><span class="ff-bar" style="width:${barPct}%;"></span></span>
+        <span class="ff-rate">${row.flow_rate.toFixed(2)}%</span>
+        ${deltaHtml}
+      </span>
+    </div>`;
+}
+
+async function loadFundFlow() {
+  const el = document.getElementById('ffContent');
+  el.className = 'loading';
+  el.textContent = '讀取資金流向資料中…';
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    const res = await fetch('/api/sector-fund-flow', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    if (res.status === 401) { showAuthView('登入已過期，請重新登入'); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { latestDate, rows } = await res.json();
+
+    if (!rows || rows.length === 0) {
+      el.className = 'empty';
+      el.textContent = '尚無資金流向資料，請確認排程 /api/update-trading-signals 已執行過。';
+      return;
+    }
+
+    el.className = '';
+    const groups = { TSE: [], OTC: [] };
+    rows.forEach(r => { if (groups[r.market]) groups[r.market].push(r); });
+    el.innerHTML = `
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">資料日期：${latestDate}</div>
+      <div class="ff-groups">
+        ${['TSE', 'OTC'].filter(k => groups[k].length).map(k => `
+          <div class="ff-group">
+            <h3>${FF_MARKET_LABEL[k]}</h3>
+            ${groups[k].map(renderFfRow).join('')}
+          </div>
+        `).join('')}
+      </div>`;
+  } catch (err) {
+    el.className = 'empty';
+    el.textContent = '讀取失敗：' + err.message;
+  }
+}
+
+/* ── 登入/身份驗證：跟系統其他頁面共用同一套 Supabase Auth + profiles(status) 帳號體系，
+   只有 status=active（已繳費開通）的顧問能看到盯盤內容，帳號本身在既有的顧問管理流程建立。 */
+let supabaseClient = null;
+
+function showAuthView(msg) {
+  document.getElementById('appView').classList.add('hidden');
+  document.getElementById('authView').classList.remove('hidden');
+  const msgEl = document.getElementById('authMsg');
+  msgEl.textContent = msg || '';
+  msgEl.className = 'auth-msg' + (msg ? ' error' : '');
+}
+
+function showAppView() {
+  document.getElementById('authView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+}
+
+async function handleLogin() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+  const msgEl = document.getElementById('authMsg');
+  if (!email || !password) {
+    msgEl.textContent = '請輸入帳號與密碼';
+    msgEl.className = 'auth-msg error';
+    return;
+  }
+  btn.disabled = true;
+  msgEl.textContent = '登入中…';
+  msgEl.className = 'auth-msg info';
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    await afterAuth();
+  } catch (err) {
+    msgEl.textContent = '登入失敗：帳號或密碼錯誤';
+    msgEl.className = 'auth-msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleLogout() {
+  await supabaseClient.auth.signOut();
+  showAuthView();
+}
+
+/* 登入成功後檢查 profiles.status，未開通(pending)或已停權(disabled)一律擋下，不進入儀表板 */
+async function afterAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) { showAuthView(); return; }
+  const { data: profile, error } = await supabaseClient
+    .from('profiles')
+    .select('status')
+    .eq('id', session.user.id)
+    .single();
+  if (error || !profile) {
+    showAuthView('讀取帳號資料失敗，請重新登入');
+    return;
+  }
+  if (profile.status !== 'active') {
+    showAuthView(profile.status === 'disabled' ? '帳號已停權，請聯繫管理者' : '帳號尚未開通，請聯繫管理者確認繳費狀態');
+    return;
+  }
+  showAppView();
+  load();
+  loadVirtualTrades();
+  loadFundFlow();
+}
+
+async function initAuth() {
+  try {
+    const res = await fetch('/api/public-config');
+    const { supabaseUrl, supabaseAnonKey } = await res.json();
+    if (!supabaseUrl || !supabaseAnonKey) {
+      showAuthView('系統尚未設定登入功能，請聯繫管理者');
+      return;
+    }
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      await afterAuth();
+    } else {
+      showAuthView();
+    }
+  } catch (err) {
+    showAuthView('初始化失敗：' + err.message);
+  }
+}
+
+initAuth();
+</script>
+</body>
+</html>
