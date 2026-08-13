@@ -34,53 +34,50 @@ async function fetchDividendRateWithRetry(fundId, attempts = 2) {
   throw lastErr;
 }
 
-module.exports = async (req, res) => {
-  if (process.env.CRON_SECRET) {
-    const auth = req.headers['authorization'];
-    if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
+// 每日投資觀點（需設定 ANTHROPIC_API_KEY 才會執行）
+async function runMarketNote() {
+  if (!process.env.ANTHROPIC_API_KEY) return 'skipped';
+  try {
+    const content = await generateMarketNote();
+    const { error } = await supabase
+      .from('daily_market_note')
+      .upsert({ id: 1, content, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    return 'ok';
+  } catch (err) {
+    console.error('更新每日投資觀點失敗', err);
+    return 'failed: ' + err.message;
   }
+}
 
-  // 每日投資觀點（需設定 ANTHROPIC_API_KEY 才會執行，沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
-  let marketNoteStatus = 'skipped';
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const content = await generateMarketNote();
-      const { error } = await supabase
-        .from('daily_market_note')
-        .upsert({ id: 1, content, updated_at: new Date().toISOString() });
-      if (error) throw error;
-      marketNoteStatus = 'ok';
-    } catch (err) {
-      console.error('更新每日投資觀點失敗', err);
-      marketNoteStatus = 'failed: ' + err.message;
-    }
+// 台股/美股精選TOP20的「進場建議」一句話（需設定 ANTHROPIC_API_KEY 才會執行）
+async function runStockPicks() {
+  if (!process.env.ANTHROPIC_API_KEY) return 'skipped';
+  try {
+    const { tw_notes, us_notes } = await generateStockPicks();
+    const { error } = await supabase
+      .from('daily_stock_picks')
+      .upsert({ id: 1, tw_notes, us_notes, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    return 'ok';
+  } catch (err) {
+    console.error('更新台股/美股精選TOP20失敗', err);
+    return 'failed: ' + err.message;
   }
+}
 
-  // 台股/美股精選TOP20的「進場建議」一句話（需設定 ANTHROPIC_API_KEY 才會執行，沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
-  let stockPicksStatus = 'skipped';
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const { tw_notes, us_notes } = await generateStockPicks();
-      const { error } = await supabase
-        .from('daily_stock_picks')
-        .upsert({ id: 1, tw_notes, us_notes, updated_at: new Date().toISOString() });
-      if (error) throw error;
-      stockPicksStatus = 'ok';
-    } catch (err) {
-      console.error('更新台股/美股精選TOP20失敗', err);
-      stockPicksStatus = 'failed: ' + err.message;
-    }
-  }
-
+// 各檔基金即時淨值（14檔，彼此獨立，平行抓取縮短總執行時間）
+async function runFundData() {
   const fundIds = Object.keys(FUND_SOURCES);
-  const results = [];
+  const settled = await Promise.allSettled(fundIds.map(fetchFundDataWithRetry));
 
-  for (const fundId of fundIds) {
+  const results = [];
+  for (let i = 0; i < fundIds.length; i++) {
+    const fundId = fundIds[i];
+    const outcome = settled[i];
     try {
-      const data = await fetchFundDataWithRetry(fundId);
+      if (outcome.status !== 'fulfilled') throw outcome.reason;
+      const data = outcome.value;
 
       // 最新快照（供「即時淨值」欄位使用，同一檔基金只保留一筆最新的）
       const { error } = await supabase
@@ -102,9 +99,11 @@ module.exports = async (req, res) => {
       results.push({ fund_id: fundId, status: 'failed', error: err.message });
     }
   }
+  return { fundIds, results };
+}
 
-  // 各基金配息率（來源網站僅每月更新一次，這裡每天檢查一次即可自動跟上最新月配息率，
-  // 各來源彼此獨立、互不影響，用 Promise.allSettled 平行抓取以縮短總執行時間）
+// 各基金配息率（來源網站僅每月更新一次，這裡每天檢查一次即可自動跟上最新月配息率，彼此獨立，平行抓取）
+async function runDividendRates() {
   const dividendIds = Object.keys(DIVIDEND_SOURCES);
   const dividendResults = await Promise.allSettled(
     dividendIds.map(fundId => fetchDividendRateWithRetry(fundId))
@@ -128,7 +127,29 @@ module.exports = async (req, res) => {
       dividendSummary.push({ fund_id: fundId, status: 'failed', error: err.message });
     }
   }
+  return { dividendIds, dividendSummary };
+}
 
+module.exports = async (req, res) => {
+  if (process.env.CRON_SECRET) {
+    const auth = req.headers['authorization'];
+    if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+  }
+
+  // 四項任務彼此互不依賴，全部平行執行以縮短總執行時間，避免超過 Vercel 函式逾時上限
+  // （AI內容生成、基金淨值、配息率沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
+  const [marketNoteStatus, stockPicksStatus, fundDataResult, dividendResult] = await Promise.all([
+    runMarketNote(),
+    runStockPicks(),
+    runFundData(),
+    runDividendRates(),
+  ]);
+
+  const { fundIds, results } = fundDataResult;
+  const { dividendIds, dividendSummary } = dividendResult;
   const okCount = results.filter(r => r.status === 'ok').length;
   const dividendOkCount = dividendSummary.filter(r => r.status === 'ok').length;
   res.status(200).json({
