@@ -2,6 +2,7 @@ const { supabase } = require('../lib/supabase');
 const { FUND_SOURCES, fetchFundData } = require('../lib/moneydj');
 const { DIVIDEND_SOURCES, fetchDividendRate } = require('../lib/fundDividendRate');
 const { generateMarketNote } = require('../lib/generateMarketNote');
+const { generateStockPicks } = require('../lib/generateStockPicks');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -55,6 +56,22 @@ module.exports = async (req, res) => {
     } catch (err) {
       console.error('更新每日投資觀點失敗', err);
       marketNoteStatus = 'failed: ' + err.message;
+    }
+  }
+
+  // 台股/美股精選TOP20的「進場建議」一句話（需設定 ANTHROPIC_API_KEY 才會執行，沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
+  let stockPicksStatus = 'skipped';
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const { tw_notes, us_notes } = await generateStockPicks();
+      const { error } = await supabase
+        .from('daily_stock_picks')
+        .upsert({ id: 1, tw_notes, us_notes, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      stockPicksStatus = 'ok';
+    } catch (err) {
+      console.error('更新台股/美股精選TOP20失敗', err);
+      stockPicksStatus = 'failed: ' + err.message;
     }
   }
 
@@ -115,7 +132,7 @@ module.exports = async (req, res) => {
   const okCount = results.filter(r => r.status === 'ok').length;
   const dividendOkCount = dividendSummary.filter(r => r.status === 'ok').length;
   res.status(200).json({
-    updated: okCount, total: fundIds.length, results, marketNoteStatus,
+    updated: okCount, total: fundIds.length, results, marketNoteStatus, stockPicksStatus,
     dividendUpdated: dividendOkCount, dividendTotal: dividendIds.length, dividendResults: dividendSummary,
   });
 };
