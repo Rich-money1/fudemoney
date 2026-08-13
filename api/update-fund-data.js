@@ -6,6 +6,9 @@ const { generateStockPicks } = require('../lib/generateStockPicks');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// 保護用：即使某個環節丟出非 Error 物件（例如 undefined），也不會讓 err.message 再炸出新的例外把整支函式打掛
+const errMsg = err => (err && err.message) ? err.message : String(err);
+
 // MoneyDJ 偶爾會逾時或回傳異常格式，失敗時等1秒後再試一次，避免單日抓取失敗就整天沒資料
 async function fetchFundDataWithRetry(fundId, attempts = 2) {
   let lastErr;
@@ -46,7 +49,7 @@ async function runMarketNote() {
     return 'ok';
   } catch (err) {
     console.error('更新每日投資觀點失敗', err);
-    return 'failed: ' + err.message;
+    return 'failed: ' + errMsg(err);
   }
 }
 
@@ -62,14 +65,14 @@ async function runStockPicks() {
     return 'ok';
   } catch (err) {
     console.error('更新台股/美股精選TOP20失敗', err);
-    return 'failed: ' + err.message;
+    return 'failed: ' + errMsg(err);
   }
 }
 
 // 各檔基金即時淨值（14檔，彼此獨立，平行抓取縮短總執行時間）
 async function runFundData() {
   const fundIds = Object.keys(FUND_SOURCES);
-  const settled = await Promise.allSettled(fundIds.map(fetchFundDataWithRetry));
+  const settled = await Promise.allSettled(fundIds.map(fundId => fetchFundDataWithRetry(fundId)));
 
   const results = [];
   for (let i = 0; i < fundIds.length; i++) {
@@ -96,7 +99,7 @@ async function runFundData() {
       results.push({ fund_id: fundId, status: 'ok', nav: data.nav });
     } catch (err) {
       console.error(`更新 ${fundId} 失敗`, err);
-      results.push({ fund_id: fundId, status: 'failed', error: err.message });
+      results.push({ fund_id: fundId, status: 'failed', error: errMsg(err) });
     }
   }
   return { fundIds, results };
@@ -124,7 +127,7 @@ async function runDividendRates() {
       dividendSummary.push({ fund_id: fundId, status: 'ok', rate: outcome.value.rate });
     } catch (err) {
       console.error(`更新 ${fundId} 配息率失敗`, err);
-      dividendSummary.push({ fund_id: fundId, status: 'failed', error: err.message });
+      dividendSummary.push({ fund_id: fundId, status: 'failed', error: errMsg(err) });
     }
   }
   return { dividendIds, dividendSummary };
