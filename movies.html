@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 電影頻道 · 每日精選片單 · 富得財富管理</title>
+<meta name="description" content="AI 每日精選6部電影，橫跨經典、冷門遺珠與熱門新片，附一句話推薦理由與取得管道。">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --border: #232733;
+    --gold: #d4af6a;
+    --text: #e8e8ec;
+    --muted: #8a8f9c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
+    padding: 24px 16px 64px;
+  }
+  header { max-width: 1080px; margin: 0 auto 20px; }
+  .backlink { display: inline-block; margin-bottom: 12px; font-size: 12.5px; color: var(--muted); text-decoration: none; }
+  .backlink:hover { color: var(--gold); }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: 0.02em; }
+  h1 span { color: var(--gold); }
+  .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .disclaimer {
+    max-width: 1080px; margin: 16px auto; padding: 12px 16px;
+    border: 1px solid var(--border); border-left: 3px solid var(--gold);
+    border-radius: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.6;
+  }
+  .theme-banner {
+    max-width: 1080px; margin: 0 auto 20px; padding: 10px 16px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px; color: var(--text);
+  }
+  .theme-banner b { color: var(--gold); }
+  .meta {
+    max-width: 1080px; margin: 0 auto 16px; display: flex; justify-content: space-between;
+    align-items: center; font-size: 12.5px; color: var(--muted);
+  }
+  #refreshBtn {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px;
+  }
+  #refreshBtn:hover { border-color: var(--gold); color: var(--gold); }
+  .grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; display: flex; flex-direction: column;
+  }
+  .card-title { font-size: 16px; font-weight: 700; margin: 0 0 2px; }
+  .card-original { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .genre-badge {
+    font-size: 11px; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--gold); background: rgba(212,175,106,0.08);
+  }
+  .hook { font-size: 13px; color: #b9bdc8; line-height: 1.7; flex: 1; margin-bottom: 10px; }
+  .availability { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .availability b { color: var(--text); font-weight: 600; }
+  .find-btn {
+    display: inline-block; text-align: center; text-decoration: none;
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 8px 14px; border-radius: 6px; font-size: 12.5px; cursor: pointer;
+  }
+  .find-btn:hover { background: rgba(212,175,106,0.1); }
+  .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
+  .ad-slot {
+    max-width: 1080px; margin: 28px auto; padding: 14px; text-align: center;
+    border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); font-size: 12px;
+  }
+  footer { max-width: 1080px; margin: 40px auto 0; text-align: center; color: var(--muted); font-size: 11.5px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="backlink" href="/">← 回富得財富管理首頁</a>
+  <h1>AI <span>電影頻道</span></h1>
+  <p class="subtitle">AI 每日重新選片，橫跨經典、冷門遺珠與熱門新片，不吃到飽片單、不灌水推薦</p>
+</header>
+
+<div class="disclaimer">
+  這是一個內容推薦頁面，片單由 AI 每日生成、僅供觀影參考，不代表任何票房、投資或收益保證。頁面透過廣告與外部平台導流連結維持營運，不涉及任何形式的資金投資或分潤承諾。
+</div>
+
+<div class="theme-banner" id="themeBanner" style="display:none;">今日選片方向：<b id="themeText"></b></div>
+
+<div class="meta">
+  <span id="updatedAt">載入中…</span>
+  <button id="refreshBtn" onclick="load()">重新整理</button>
+</div>
+
+<div id="content" class="loading">讀取片單中…</div>
+
+<div class="ad-slot" id="adSlot">
+  廣告版位
+  <!-- TODO: 申請 Google AdSense 後，把 <ins class="adsbygoogle"> 廣告碼貼在這裡取代此文字 -->
+</div>
+
+<footer>片單由 AI 生成，資訊可能有誤，觀看前請自行至平台確認上架狀況 · © 富得財富管理</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+let supabaseClient = null;
+
+function fmtUpdatedAt(iso) {
+  if (!iso) return '尚未產生片單';
+  const d = new Date(iso);
+  return `最後更新：${d.toLocaleString('zh-TW', { hour12: false })}`;
+}
+
+function logEvent(eventType, meta) {
+  // 沿用既有的 page_events 表做輕量分析，不需要另外申請第三方帳號
+  if (!supabaseClient) return;
+  supabaseClient.from('page_events').insert({ event_type: eventType, meta: meta || null }).then(() => {});
+}
+
+function justWatchUrl(title) {
+  // 用 JustWatch 搜尋而非猜測特定平台連結，避免片單資訊過時造成連去錯誤頁面
+  return `https://www.justwatch.com/tw/search?q=${encodeURIComponent(title)}`;
+}
+
+function renderCard(pick) {
+  const genres = (pick.genres || []).map(g => `<span class="genre-badge">${g}</span>`).join('');
+  const title = pick.title || '未知片名';
+  return `
+    <div class="card">
+      <div class="card-title">${title}</div>
+      ${pick.original_title ? `<div class="card-original">${pick.original_title}${pick.year ? ` · ${pick.year}` : ''}</div>` : ''}
+      <div class="genres">${genres}</div>
+      <div class="hook">${pick.hook || ''}</div>
+      ${pick.availability ? `<div class="availability">取得管道：<b>${pick.availability}</b></div>` : ''}
+      <a class="find-btn" target="_blank" rel="noopener" href="${justWatchUrl(title)}" onclick='logEvent("movie_watch_link_click", {title: ${JSON.stringify(title)}})'>去找這部片 →</a>
+    </div>
+  `;
+}
+
+async function load() {
+  const contentEl = document.getElementById('content');
+  contentEl.className = 'loading';
+  contentEl.textContent = '讀取片單中…';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('daily_movie_picks')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+    if (error) throw error;
+
+    document.getElementById('updatedAt').textContent = fmtUpdatedAt(data && data.updated_at);
+
+    const picks = (data && data.picks) || [];
+    if (picks.length === 0) {
+      contentEl.className = 'empty';
+      contentEl.textContent = '片單尚未產生，請稍後再回來看看';
+      return;
+    }
+
+    if (data.theme) {
+      document.getElementById('themeText').textContent = data.theme;
+      document.getElementById('themeBanner').style.display = 'block';
+    }
+
+    contentEl.className = 'grid';
+    contentEl.innerHTML = picks.map(renderCard).join('');
+  } catch (err) {
+    console.error('讀取片單失敗', err);
+    contentEl.className = 'empty';
+    contentEl.textContent = '讀取片單失敗，請稍後再試';
+  }
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/public-config');
+    const { supabaseUrl, supabaseAnonKey } = await res.json();
+    if (!supabaseUrl || !supabaseAnonKey) {
+      document.getElementById('content').className = 'empty';
+      document.getElementById('content').textContent = '系統尚未設定資料庫連線，請聯繫管理者';
+      return;
+    }
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+    logEvent('movie_page_view');
+    await load();
+  } catch (err) {
+    console.error('初始化失敗', err);
+    document.getElementById('content').className = 'empty';
+    document.getElementById('content').textContent = '初始化失敗，請重新整理頁面';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
