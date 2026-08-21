@@ -89,7 +89,7 @@ module.exports = async (req, res) => {
       if (event.replyToken) {
         await replyMessage(
           event.replyToken,
-          `✅ 綁定成功！\n\n${client.name} 您好，歡迎加入富得財富管理。\n往後您的配息提醒將會準時透過這個帳號通知您。`
+          `綁定成功！\n\n${client.name} 您好，歡迎加入富得財富管理。\n往後您的配息提醒以及每日財經將會準時透過這個帳號通知您。`
         ).catch(err => console.error('reply success failed', err));
       }
     }

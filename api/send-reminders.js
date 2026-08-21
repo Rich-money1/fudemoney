@@ -3,18 +3,6 @@ const { pushMessage } = require('../lib/line');
 const { FUNDS, FUND_APPROX_DAY, findFund } = require('../lib/funds');
 const { runDailyReport } = require('../lib/dailyReport');
 
-function fmt(n) {
-  return Math.round(n).toLocaleString('zh-TW');
-}
-
-function calcGroupMonthly(group) {
-  const rate = (group.fund_ids || []).reduce((s, fid) => {
-    const f = findFund(fid);
-    return s + (f ? f.rate : 0);
-  }, 0);
-  return (parseFloat(group.principal) || 0) * rate / 12;
-}
-
 module.exports = async (req, res) => {
   // 若有設定 CRON_SECRET，驗證請求來源（避免被外部亂觸發）
   if (process.env.CRON_SECRET) {
@@ -67,15 +55,15 @@ module.exports = async (req, res) => {
       if (existing) continue;
 
       const fund = findFund(fid);
-      const relatedGroup = (client.dividend_groups || []).find(g => (g.fund_ids || []).includes(fid));
-      const mo = relatedGroup ? calcGroupMonthly(relatedGroup) : 0;
 
       const message =
-        `📅 【配息提醒】今日為基準日\n\n` +
-        `${client.name} 您好，\n\n` +
-        `${fund?.name || fid}（年化 ${((fund?.rate || 0) * 100).toFixed(1)}%）今日為配息基準日，\n` +
-        `本組月配息約 ${fmt(mo)} 元，將依基金公司公告時程陸續入帳。\n\n` +
-        `富得財富管理 · Eddie Lin 林顧問`;
+        `📅 【配息發放通知】您的專屬被動收入已就位\n` +
+        `${client.name} 您好：\n\n` +
+        `今日為 ${fund?.name || fid} 的配息基準日。\n` +
+        `💵 當期配息款項已依時程撥入您的指定帳戶。\n` +
+        `建議您可以撥空查看帳戶明細，確認這筆為您辛苦工作的「資產利息」。\n\n` +
+        `📈 【顧問溫馨提醒】\n` +
+        `每月的穩定配息，都是為您實現財務自由的基石。若您查帳後希望進一步放大未來的月現金流規模，歡迎隨時與我聯繫，我將為您評估最適合的複利加碼策略。`;
 
       try {
         await pushMessage(client.line_user_id, message);
