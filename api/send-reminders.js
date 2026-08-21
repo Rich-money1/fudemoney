@@ -82,10 +82,11 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 每日市場報告（PDF+LINE連結，併入同一個每日排程，避免超過 Vercel Hobby 方案排程數量上限）
+  // 每日市場報告：排程只負責產生PDF並更新連結，不自動推播給客戶
+  // （Eddie 想要每天先手動確認/更新內容，再自行決定何時發送給客戶，改由後台「發送每日財經」按鈕觸發 api/send-daily-report.js）
   let dailyReportResult = null;
   try {
-    dailyReportResult = await runDailyReport();
+    dailyReportResult = await runDailyReport({ testMode: true });
   } catch (err) {
     console.error('產生每日報告失敗', err);
     dailyReportResult = { error: err.message };
