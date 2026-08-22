@@ -67,9 +67,14 @@
   .badge.wait { color: var(--muted); }
   .badge.avoid, .badge.stopped { color: var(--up); border-color: #5a2a2c; }
   .badge.range { color: var(--muted); }
+  .badge.short-entry { color: var(--down); border-color: #1f5a34; background: rgba(47,179,90,0.08); }
+  .badge.squeeze { color: var(--up); border-color: #5a2a2c; }
   .levels { font-size: 12.5px; color: var(--muted); line-height: 1.9; margin-bottom: 8px; }
   .levels b { color: var(--text); font-weight: 600; }
-  .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; }
+  .rationale { font-size: 12.5px; color: #b9bdc8; line-height: 1.7; }
+  .signal-block { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  .signal-block:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .signal-block-label { font-size: 10.5px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 6px; }
   .empty, .loading { max-width: 1080px; margin: 40px auto; text-align: center; color: var(--muted); font-size: 13px; }
 
   .vt-section { max-width: 1080px; margin: 0 auto 32px; }
@@ -93,6 +98,10 @@
   .vt-badge.open { color: var(--gold); border-color: #6b5527; }
   .vt-badge.win { color: var(--up); border-color: #5a2a2c; }
   .vt-badge.loss { color: var(--down); border-color: #1f5a34; }
+  .vt-badge.dir-long { color: var(--muted); }
+  .vt-badge.dir-short { color: #ffcf87; border-color: #6b5527; }
+  .vt-summary-group { margin-bottom: 18px; }
+  .vt-summary-group h3 { font-size: 12.5px; color: var(--text); font-weight: 600; margin: 0 0 8px; }
 
   .ff-section { max-width: 1080px; margin: 0 auto 32px; }
   .ff-section h2 {
@@ -217,6 +226,13 @@ const SIGNAL_CLASS = {
   '跌破止損': 'stopped',
   '盤整': 'range',
 };
+const SHORT_SIGNAL_CLASS = {
+  '放空區間': 'short-entry',
+  '觀望': 'wait',
+  '避免追空': 'avoid',
+  '軋空止損': 'squeeze',
+  '盤整': 'range',
+};
 
 function fmtNum(v) {
   if (v == null) return '—';
@@ -228,8 +244,11 @@ function renderCard(row) {
   const changeCls = row.change_percent > 0 ? 'up' : row.change_percent < 0 ? 'down' : '';
   const changeSign = row.change_percent > 0 ? '+' : '';
   const badgeCls = SIGNAL_CLASS[row.signal] || 'wait';
+  const shortBadgeCls = SHORT_SIGNAL_CLASS[row.short_signal] || 'wait';
   const entryText = (row.entry_low != null && row.entry_high != null)
     ? `${fmtNum(row.entry_low)} ~ ${fmtNum(row.entry_high)}` : '目前無明確進場區間';
+  const shortEntryText = (row.short_entry_low != null && row.short_entry_high != null)
+    ? `${fmtNum(row.short_entry_low)} ~ ${fmtNum(row.short_entry_high)}` : '目前無明確進場區間';
 
   return `
     <div class="card">
@@ -241,12 +260,24 @@ function renderCard(row) {
         <span class="change ${changeCls}">${changeSign}${row.change_percent != null ? row.change_percent : '—'}%</span>
         <span style="color:var(--muted);font-size:12px;">${row.trend || ''} · RSI ${fmtNum(row.rsi14)}</span>
       </div>
-      <span class="badge ${badgeCls}">${row.signal || '—'}</span>
-      <div class="levels">
-        進場區間：<b>${entryText}</b><br>
-        止損：<b>${fmtNum(row.stop_loss)}</b>　止盈1：<b>${fmtNum(row.take_profit_1)}</b>　止盈2：<b>${fmtNum(row.take_profit_2)}</b>
+      <div class="signal-block">
+        <div class="signal-block-label">多方</div>
+        <span class="badge ${badgeCls}">${row.signal || '—'}</span>
+        <div class="levels">
+          進場區間：<b>${entryText}</b><br>
+          止損：<b>${fmtNum(row.stop_loss)}</b>　止盈1：<b>${fmtNum(row.take_profit_1)}</b>　止盈2：<b>${fmtNum(row.take_profit_2)}</b>
+        </div>
+        ${row.rationale ? `<div class="rationale">${row.rationale}</div>` : ''}
       </div>
-      ${row.rationale ? `<div class="rationale">${row.rationale}</div>` : ''}
+      <div class="signal-block">
+        <div class="signal-block-label">空方</div>
+        <span class="badge ${shortBadgeCls}">${row.short_signal || '—'}</span>
+        <div class="levels">
+          進場區間：<b>${shortEntryText}</b><br>
+          止損：<b>${fmtNum(row.short_stop_loss)}</b>　止盈1：<b>${fmtNum(row.short_take_profit_1)}</b>　止盈2：<b>${fmtNum(row.short_take_profit_2)}</b>
+        </div>
+        ${row.short_rationale ? `<div class="rationale">${row.short_rationale}</div>` : ''}
+      </div>
     </div>`;
 }
 
@@ -325,15 +356,34 @@ function fmtPct(v) {
 function renderVtRow(t) {
   const badgeCls = VT_STATUS_CLASS[t.status] || 'open';
   const pnlCls = t.pnl_percent > 0 ? 'up' : t.pnl_percent < 0 ? 'down' : '';
+  const isShort = t.direction === 'short';
   return `
     <tr>
       <td>${t.name}<span style="color:var(--muted);margin-left:4px;">${t.symbol}</span></td>
+      <td><span class="vt-badge ${isShort ? 'dir-short' : 'dir-long'}">${isShort ? '空' : '多'}</span></td>
       <td><span class="vt-badge ${badgeCls}">${VT_STATUS_LABEL[t.status] || t.status}</span></td>
       <td>${t.entry_date || '—'}　${fmtNum(t.entry_price)}</td>
       <td>${t.exit_date || '—'}　${fmtNum(t.exit_price)}</td>
       <td class="pnl ${pnlCls}">${fmtPct(t.pnl_percent)}</td>
       <td class="pnl ${pnlCls}">${fmtTwd(t.pnl_twd)}</td>
     </tr>`;
+}
+
+function renderVtSummary(title, summary) {
+  const winRateCls = summary.winRate == null ? '' : summary.winRate >= 50 ? 'up' : 'down';
+  const pnlCls = summary.totalPnlTwd > 0 ? 'up' : summary.totalPnlTwd < 0 ? 'down' : '';
+  return `
+    <div class="vt-summary-group">
+      <h3>${title}</h3>
+      <div class="vt-summary">
+        <div class="vt-stat"><div class="label">持倉中</div><div class="value">${summary.openCount}</div></div>
+        <div class="vt-stat"><div class="label">已平倉</div><div class="value">${summary.closedCount}</div></div>
+        <div class="vt-stat"><div class="label">勝率</div><div class="value ${winRateCls}">${summary.winRate != null ? summary.winRate + '%' : '—'}</div></div>
+        <div class="vt-stat"><div class="label">勝/敗</div><div class="value">${summary.winCount} / ${summary.lossCount}</div></div>
+        <div class="vt-stat"><div class="label">累計損益</div><div class="value ${pnlCls}">${fmtTwd(summary.totalPnlTwd)}</div></div>
+        <div class="vt-stat"><div class="label">平均報酬</div><div class="value ${pnlCls}">${fmtPct(summary.avgPnlPercent)}</div></div>
+      </div>
+    </div>`;
 }
 
 async function loadVirtualTrades() {
@@ -352,25 +402,17 @@ async function loadVirtualTrades() {
 
     if (!trades || trades.length === 0) {
       el.className = 'empty';
-      el.textContent = '尚無虛擬倉紀錄，出現「買進區間」訊號時會自動開倉。';
+      el.textContent = '尚無虛擬倉紀錄，出現「買進區間」或「放空區間」訊號時會自動開倉。';
       return;
     }
 
-    const winRateCls = summary.winRate == null ? '' : summary.winRate >= 50 ? 'up' : 'down';
-    const pnlCls = summary.totalPnlTwd > 0 ? 'up' : summary.totalPnlTwd < 0 ? 'down' : '';
     el.className = '';
     el.innerHTML = `
-      <div class="vt-summary">
-        <div class="vt-stat"><div class="label">持倉中</div><div class="value">${summary.openCount}</div></div>
-        <div class="vt-stat"><div class="label">已平倉</div><div class="value">${summary.closedCount}</div></div>
-        <div class="vt-stat"><div class="label">勝率</div><div class="value ${winRateCls}">${summary.winRate != null ? summary.winRate + '%' : '—'}</div></div>
-        <div class="vt-stat"><div class="label">勝/敗</div><div class="value">${summary.winCount} / ${summary.lossCount}</div></div>
-        <div class="vt-stat"><div class="label">累計損益</div><div class="value ${pnlCls}">${fmtTwd(summary.totalPnlTwd)}</div></div>
-        <div class="vt-stat"><div class="label">平均報酬</div><div class="value ${pnlCls}">${fmtPct(summary.avgPnlPercent)}</div></div>
-      </div>
+      ${renderVtSummary('多方虛擬倉', summary.long)}
+      ${renderVtSummary('空方虛擬倉', summary.short)}
       <div class="vt-table-wrap">
         <table class="vt-table">
-          <thead><tr><th>標的</th><th>狀態</th><th>進場</th><th>出場</th><th>報酬%</th><th>損益(TWD)</th></tr></thead>
+          <thead><tr><th>標的</th><th>方向</th><th>狀態</th><th>進場</th><th>出場</th><th>報酬%</th><th>損益(TWD)</th></tr></thead>
           <tbody>${trades.map(renderVtRow).join('')}</tbody>
         </table>
       </div>`;

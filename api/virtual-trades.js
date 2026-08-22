@@ -36,24 +36,32 @@ module.exports = async (req, res) => {
     if (error) throw error;
 
     const trades = data || [];
-    const closedTrades = trades.filter(t => t.status !== 'open');
-    const wins = closedTrades.filter(t => t.status === 'win_tp1' || t.status === 'win_tp2');
-    const winRate = closedTrades.length > 0 ? +((wins.length / closedTrades.length) * 100).toFixed(1) : null;
-    const totalPnlTwd = closedTrades.reduce((sum, t) => sum + (t.pnl_twd || 0), 0);
-    const avgPnlPercent = closedTrades.length > 0
-      ? +(closedTrades.reduce((sum, t) => sum + (t.pnl_percent || 0), 0) / closedTrades.length).toFixed(2)
-      : null;
 
-    res.status(200).json({
-      trades,
-      summary: {
-        openCount: trades.length - closedTrades.length,
+    // 多單/空單分開統計勝率跟報酬，避免兩個方向的績效互相稀釋掩蓋
+    function summarize(list) {
+      const closedTrades = list.filter(t => t.status !== 'open');
+      const wins = closedTrades.filter(t => t.status === 'win_tp1' || t.status === 'win_tp2');
+      const winRate = closedTrades.length > 0 ? +((wins.length / closedTrades.length) * 100).toFixed(1) : null;
+      const totalPnlTwd = closedTrades.reduce((sum, t) => sum + (t.pnl_twd || 0), 0);
+      const avgPnlPercent = closedTrades.length > 0
+        ? +(closedTrades.reduce((sum, t) => sum + (t.pnl_percent || 0), 0) / closedTrades.length).toFixed(2)
+        : null;
+      return {
+        openCount: list.length - closedTrades.length,
         closedCount: closedTrades.length,
         winCount: wins.length,
         lossCount: closedTrades.length - wins.length,
         winRate,
         totalPnlTwd: +totalPnlTwd.toFixed(2),
         avgPnlPercent,
+      };
+    }
+
+    res.status(200).json({
+      trades,
+      summary: {
+        long: summarize(trades.filter(t => t.direction !== 'short')),
+        short: summarize(trades.filter(t => t.direction === 'short')),
       },
     });
   } catch (err) {
