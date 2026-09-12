@@ -2,10 +2,19 @@ const { createClient } = require('@supabase/supabase-js');
 const { supabase } = require('../lib/supabase');
 const { runDailyReport } = require('../lib/dailyReport');
 
-/* 手動發送每日財經給所有已綁定LINE的客戶（後台「發送每日財經」按鈕呼叫）
-   排程本身只負責自動產生PDF，不會自動推播，需要管理者在後台確認內容後手動觸發這支才會真的送出。
+/* 手動補送每日財經給所有已綁定LINE的客戶（後台「發送每日財經」按鈕呼叫）
+   正常情況下每天9點的市場觀點排程會自動更新內容並推播，這支是內容臨時改過、或自動推播失敗時的手動補送管道。
    用登入者的 Supabase session 驗證身分，僅限 role=admin 可觸發（會發送給所有顧問名下的客戶，非管理者不開放）。 */
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
     return;

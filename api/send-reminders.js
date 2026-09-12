@@ -82,8 +82,10 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 每日市場報告：排程只負責產生PDF並更新連結，不自動推播給客戶
-  // （Eddie 想要每天先手動確認/更新內容，再自行決定何時發送給客戶，改由後台「發送每日財經」按鈕觸發 api/send-daily-report.js）
+  // 每日市場報告：這支排程只先產生一份PDF備著，不在這裡推播。
+  // 真正的推播由每天9點的市場觀點排程負責：先寫入 daily_market_note，再呼叫 api/generate-daily-report
+  // 一次重產PDF並推播給所有已綁定LINE的客戶（內容必須先更新過才送，順序不能顛倒）。
+  // 後台「發送每日財經」按鈕（api/send-daily-report.js）保留為手動補送用。
   let dailyReportResult = null;
   try {
     dailyReportResult = await runDailyReport({ testMode: true });
