@@ -133,6 +133,44 @@ async function runDividendRates() {
   return { dividendIds, dividendSummary };
 }
 
+// 實戰績效公開統計：十案例靜態基數 + 全部客戶計畫本金合計，寫入 performance_stats（僅總和數字，不含客戶明細）
+// 公式與前台 index.html 的 renderPerformanceSummary() 一致：累計已領配息＝總投入本金÷6.96
+const PERF_BASE_PRINCIPAL = 29445000;
+const PERF_BASE_VALUE = 33808837;
+const PERF_RECEIVED_DIVISOR = 6.96;
+async function runPerformanceStats() {
+  try {
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('dividend_groups(principal), growth_holdings(principal)');
+    if (error) throw error;
+
+    const clientPrincipal = (clients || []).reduce((sum, c) => {
+      const divP = (c.dividend_groups || []).reduce((s, g) => s + (parseFloat(g.principal) || 0), 0);
+      const growP = (c.growth_holdings || []).reduce((s, h) => s + (parseFloat(h.principal) || 0), 0);
+      return sum + divP + growP;
+    }, 0);
+
+    const totalPrincipal = PERF_BASE_PRINCIPAL + clientPrincipal;
+    const totalReceived = totalPrincipal / PERF_RECEIVED_DIVISOR;
+    const totalValue = PERF_BASE_VALUE + clientPrincipal;
+
+    const { error: upsertErr } = await supabase.from('performance_stats').upsert({
+      id: 'overall',
+      total_principal: totalPrincipal,
+      total_received: totalReceived,
+      total_value: totalValue,
+      updated_at: new Date().toISOString(),
+    });
+    if (upsertErr) throw upsertErr;
+
+    return { status: 'ok', total_principal: totalPrincipal, total_received: totalReceived, total_value: totalValue };
+  } catch (err) {
+    console.error('更新實戰績效公開統計失敗', err);
+    return { status: 'failed', error: errMsg(err) };
+  }
+}
+
 module.exports = async (req, res) => {
   if (process.env.CRON_SECRET) {
     const auth = req.headers['authorization'];
@@ -142,13 +180,14 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 四項任務彼此互不依賴，全部平行執行以縮短總執行時間，避免超過 Vercel 函式逾時上限
-  // （AI內容生成、基金淨值、配息率沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
-  const [marketNoteStatus, stockPicksStatus, fundDataResult, dividendResult] = await Promise.all([
+  // 五項任務彼此互不依賴，全部平行執行以縮短總執行時間，避免超過 Vercel 函式逾時上限
+  // （AI內容生成、基金淨值、配息率、實戰績效統計沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
+  const [marketNoteStatus, stockPicksStatus, fundDataResult, dividendResult, performanceStatsResult] = await Promise.all([
     runMarketNote(),
     runStockPicks(),
     runFundData(),
     runDividendRates(),
+    runPerformanceStats(),
   ]);
 
   const { fundIds, results } = fundDataResult;
@@ -158,5 +197,6 @@ module.exports = async (req, res) => {
   res.status(200).json({
     updated: okCount, total: fundIds.length, results, marketNoteStatus, stockPicksStatus,
     dividendUpdated: dividendOkCount, dividendTotal: dividendIds.length, dividendResults: dividendSummary,
+    performanceStats: performanceStatsResult,
   });
 };
