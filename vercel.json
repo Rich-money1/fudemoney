@@ -12,6 +12,7 @@
     "api/send-daily-report.js": { "maxDuration": 60 },
     "api/update-fund-data.js": { "maxDuration": 60 },
     "api/update-trading-signals.js": { "maxDuration": 60 },
-    "api/update-movie-picks.js": { "maxDuration": 60 }
+    "api/update-movie-picks.js": { "maxDuration": 60 },
+    "api/client-roleplay-chat.js": { "maxDuration": 60 }
   }
 }
