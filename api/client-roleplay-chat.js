@@ -119,7 +119,9 @@ module.exports = async (req, res) => {
     }
     const data = await aiRes.json();
     const content = data.content?.[0]?.text?.trim();
-    if (!content) throw new Error('Anthropic API 未回傳內容');
+    if (!content) {
+      throw new Error('Anthropic API 未回傳內容，原始回應：' + JSON.stringify(data).slice(0, 500));
+    }
 
     res.status(200).json({ reply: content });
   } catch (err) {
