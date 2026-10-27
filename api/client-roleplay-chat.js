@@ -118,7 +118,10 @@ module.exports = async (req, res) => {
       throw new Error(`Anthropic API HTTP ${aiRes.status}: ${errText}`);
     }
     const data = await aiRes.json();
-    const content = data.content?.[0]?.text?.trim();
+    // claude-sonnet-5 可能會在正式文字回答之前插入 thinking 區塊，不能直接假設 content[0] 就是文字，
+    // 要找 type==='text' 的那一塊
+    const textBlock = data.content?.find(b => b.type === 'text');
+    const content = textBlock?.text?.trim();
     if (!content) {
       throw new Error('Anthropic API 未回傳內容，原始回應：' + JSON.stringify(data).slice(0, 500));
     }
