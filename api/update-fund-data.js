@@ -53,14 +53,15 @@ async function runMarketNote() {
   }
 }
 
-// 台股/美股精選TOP20的「進場建議」一句話（需設定 ANTHROPIC_API_KEY 才會執行）
+// 台股/美股精選TOP20的評等/潛力空間%/風險等級/排名/進場建議（需設定 ANTHROPIC_API_KEY 才會執行）
+// tw_notes/us_notes 欄位名稱沿用舊schema，但內容已從純文字改為 {code: {note,rating,target,risk,conviction}} 物件
 async function runStockPicks() {
   if (!process.env.ANTHROPIC_API_KEY) return 'skipped';
   try {
-    const { tw_notes, us_notes } = await generateStockPicks();
+    const { tw_picks, us_picks } = await generateStockPicks();
     const { error } = await supabase
       .from('daily_stock_picks')
-      .upsert({ id: 1, tw_notes, us_notes, updated_at: new Date().toISOString() });
+      .upsert({ id: 1, tw_notes: tw_picks, us_notes: us_picks, updated_at: new Date().toISOString() });
     if (error) throw error;
     return 'ok';
   } catch (err) {
