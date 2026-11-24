@@ -14,6 +14,7 @@
     "api/update-trading-signals.js": { "maxDuration": 60 },
     "api/update-movie-picks.js": { "maxDuration": 60 },
     "api/client-roleplay-chat.js": { "maxDuration": 60 },
-    "api/scan-medical-policy.js": { "maxDuration": 60 }
+    "api/scan-medical-policy.js": { "maxDuration": 60 },
+    "api/ig-content.js": { "maxDuration": 60 }
   }
 }
