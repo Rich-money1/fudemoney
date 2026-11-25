@@ -1,12 +1,13 @@
 const { supabase } = require('../lib/supabase');
-const { buildAuthorizeUrl, fetchProfile, refreshLongLived, igConfig } = require('../lib/igAuth');
+const { buildAuthorizeUrl, fetchProfile, igConfig } = require('../lib/igAuth');
 
 /* InstaNeural 綁定頁（ig-connect.html）的控制端點。
    access_token 永遠不會回給前端——前端只拿得到帳號名稱、粉絲數、到期日這些顯示用欄位。
    action：
      status      查目前綁定狀態（順便即時抓一次 IG 粉絲數）
      authorize_url 產生 Instagram 授權連結（state 內含簽章過的 userId）
-     refresh     手動續期長效 token
+     verify      重新驗證 token 還活著沒（Unified Login 的商家系統用戶 token 不會自然過期，
+                 但使用者可以在 FB/IG 端撤銷授權，所以要能主動驗）
      disconnect  解除綁定（只刪我們這邊的紀錄，IG 那邊要自己去設定移除）
 */
 module.exports = async (req, res) => {
@@ -39,7 +40,7 @@ module.exports = async (req, res) => {
 
     if (action === 'authorize_url') {
       if (!cfg.ready) {
-        res.status(400).json({ error: '伺服器還沒設定 IG_APP_ID / IG_APP_SECRET / IG_REDIRECT_URI，請先完成 Meta 後台設定' });
+        res.status(400).json({ error: '伺服器還沒設定齊 IG_APP_ID / IG_APP_SECRET / IG_REDIRECT_URI / IG_CONFIG_ID，請先完成 Meta 後台設定' });
         return;
       }
       res.status(200).json({ url: buildAuthorizeUrl(ownerId), redirectUri: cfg.redirectUri });
@@ -65,19 +66,15 @@ module.exports = async (req, res) => {
       return;
     }
 
-    if (action === 'refresh') {
-      const refreshed = await refreshLongLived(row.access_token);
-      const expiresAt = refreshed.expires_in
-        ? new Date(Date.now() + Number(refreshed.expires_in) * 1000).toISOString()
-        : null;
+    if (action === 'verify') {
+      const live = await fetchProfile(row.access_token);   // 失敗會丟例外，由外層轉成500
       const { error } = await supabase.from('ig_accounts').update({
-        access_token: refreshed.access_token,
-        token_expires_at: expiresAt,
+        username: live.username || row.username,
         refreshed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }).eq('owner_id', ownerId);
       if (error) throw new Error(error.message);
-      res.status(200).json({ connected: true, refreshed: true, token_expires_at: expiresAt });
+      res.status(200).json({ connected: true, verified: true, username: live.username });
       return;
     }
 

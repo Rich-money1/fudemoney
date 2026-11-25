@@ -1,5 +1,5 @@
 const { supabase } = require('../lib/supabase');
-const { verifyState, exchangeCode, exchangeLongLived, fetchProfile, igConfig } = require('../lib/igAuth');
+const { verifyState, exchangeCode, fetchProfile, igConfig } = require('../lib/igAuth');
 
 /* Instagram 授權完成後 Meta 會把使用者丟回這支（這個網址要填進 Meta 後台的
    「Valid OAuth Redirect URIs」，也要設成環境變數 IG_REDIRECT_URI，兩邊必須一字不差）。
@@ -37,33 +37,32 @@ module.exports = async (req, res) => {
   }
   if (!igConfig().ready) {
     res.status(500).send(page('伺服器未設定',
-      '<h1>伺服器尚未設定</h1><p>還沒填 IG_APP_ID / IG_APP_SECRET / IG_REDIRECT_URI 這三個環境變數。</p>', false));
+      '<h1>伺服器尚未設定</h1><p>還沒填齊 IG_APP_ID / IG_APP_SECRET / IG_REDIRECT_URI / IG_CONFIG_ID 這四個環境變數。</p>', false));
     return;
   }
 
   try {
     const ownerId = verifyState(state);
 
-    const short = await exchangeCode(code);
-    const shortToken = short.access_token || short.data?.[0]?.access_token;
-    if (!shortToken) throw new Error('沒拿到短效token');
+    const granted = await exchangeCode(code);
+    const accessToken = granted.access_token;
+    if (!accessToken) throw new Error('沒拿到存取權杖');
 
-    const long = await exchangeLongLived(shortToken);
-    if (!long.access_token) throw new Error('沒拿到長效token');
+    const profile = await fetchProfile(accessToken);
 
-    const profile = await fetchProfile(long.access_token);
-
-    const expiresAt = long.expires_in
-      ? new Date(Date.now() + Number(long.expires_in) * 1000).toISOString()
+    // 商家系統用戶 token 預設永不過期，所以通常不會有 expires_in；
+    // 真的有才記到期日，沒有就留 null 當作「不會過期」
+    const expiresAt = granted.expires_in
+      ? new Date(Date.now() + Number(granted.expires_in) * 1000).toISOString()
       : null;
 
     const { error: dbError } = await supabase.from('ig_accounts').upsert({
       owner_id: ownerId,
-      ig_user_id: String(profile.user_id || short.user_id || ''),
+      ig_user_id: String(profile.user_id || ''),
       username: profile.username || null,
       access_token: long.access_token,
       token_expires_at: expiresAt,
-      scopes: Array.isArray(short.permissions) ? short.permissions.join(',') : (short.permissions || null),
+      scopes: Array.isArray(granted.permissions) ? granted.permissions.join(',') : (granted.permissions || null),
       connected_at: new Date().toISOString(),
       refreshed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -74,7 +73,7 @@ module.exports = async (req, res) => {
       `<h1>綁定成功</h1>
        <p>已連上 <strong>@${String(profile.username || '').replace(/[<>&"]/g, '')}</strong>
        （粉絲 ${profile.followers_count ?? '—'}、貼文 ${profile.media_count ?? '—'}）。</p>
-       <p>授權效期 60 天，系統每週會自動續期，你不用再手動處理。</p>`, true));
+       <p>${expiresAt ? '授權效期到 ' + expiresAt.slice(0,10) : '這組授權不會過期'}，不用再手動處理。</p>`, true));
   } catch (err) {
     console.error('ig-oauth-callback失敗', err);
     res.status(200).send(page('綁定失敗',
