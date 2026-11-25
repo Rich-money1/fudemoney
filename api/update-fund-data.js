@@ -3,6 +3,7 @@ const { FUND_SOURCES, fetchFundData } = require('../lib/moneydj');
 const { DIVIDEND_SOURCES, fetchDividendRate } = require('../lib/fundDividendRate');
 const { generateMarketNote } = require('../lib/generateMarketNote');
 const { generateStockPicks } = require('../lib/generateStockPicks');
+const { generateTalkTopics } = require('../lib/generateTalkTopics');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -49,6 +50,22 @@ async function runMarketNote() {
     return 'ok';
   } catch (err) {
     console.error('更新每日投資觀點失敗', err);
+    return 'failed: ' + errMsg(err);
+  }
+}
+
+// 每日開門話題：給顧問直接照著說、跟客戶破冰聊天用的話題，跟「每日投資觀點」不同用途（需設定 ANTHROPIC_API_KEY 才會執行）
+async function runTalkTopics() {
+  if (!process.env.ANTHROPIC_API_KEY) return 'skipped';
+  try {
+    const topics = await generateTalkTopics();
+    const { error } = await supabase
+      .from('daily_talk_topics')
+      .upsert({ id: 1, topics, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    return 'ok';
+  } catch (err) {
+    console.error('更新每日開門話題失敗', err);
     return 'failed: ' + errMsg(err);
   }
 }
@@ -181,11 +198,12 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 五項任務彼此互不依賴，全部平行執行以縮短總執行時間，避免超過 Vercel 函式逾時上限
+  // 六項任務彼此互不依賴，全部平行執行以縮短總執行時間，避免超過 Vercel 函式逾時上限
   // （AI內容生成、基金淨值、配息率、實戰績效統計沿用同一個每日排程，避免超過 Vercel Hobby 方案的排程數量上限）
-  const [marketNoteStatus, stockPicksStatus, fundDataResult, dividendResult, performanceStatsResult] = await Promise.all([
+  const [marketNoteStatus, stockPicksStatus, talkTopicsStatus, fundDataResult, dividendResult, performanceStatsResult] = await Promise.all([
     runMarketNote(),
     runStockPicks(),
+    runTalkTopics(),
     runFundData(),
     runDividendRates(),
     runPerformanceStats(),
@@ -196,7 +214,7 @@ module.exports = async (req, res) => {
   const okCount = results.filter(r => r.status === 'ok').length;
   const dividendOkCount = dividendSummary.filter(r => r.status === 'ok').length;
   res.status(200).json({
-    updated: okCount, total: fundIds.length, results, marketNoteStatus, stockPicksStatus,
+    updated: okCount, total: fundIds.length, results, marketNoteStatus, stockPicksStatus, talkTopicsStatus,
     dividendUpdated: dividendOkCount, dividendTotal: dividendIds.length, dividendResults: dividendSummary,
     performanceStats: performanceStatsResult,
   });
